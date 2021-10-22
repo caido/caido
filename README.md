@@ -16,7 +16,7 @@
 <h3 align="middle">Built from the ground up in Rust, Caido aims to help security professionals and enthusiasts audit web applications with efficiency and ease</h3>
 
 <div align="middle">
-  <img style="border-radius: 10px; width: 75%;" src="https://github.com/caido/caido/blob/main/assets/replay.png?raw=true" alt="replay" />
+  <img style="border-radius: 1%;" src="https://github.com/caido/caido/blob/main/assets/replay.png?raw=true" alt="replay" />
 </div>
 
 <br>
