@@ -2,9 +2,6 @@
 <h3 align="middle">A lightweight web security auditing toolkit</h3>
 
 <p align="center">
-    <a href="https://discord.gg/KgGkkpKFaq">
-        <img src="https://img.shields.io/badge/-Discord-7289DA?style=for-the-badge" alt="Discord">
-    </a>
     <a href="https://github.com/caido/caido/issues">
         <img src="https://img.shields.io/badge/-Bugs%20%2F%20Features-a0213e?style=for-the-badge" alt="Bugs/Features">
     </a>
