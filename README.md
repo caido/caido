@@ -8,6 +8,9 @@
     <a href="https://github.com/orgs/caido/projects/4/views/20">
         <img src="https://img.shields.io/badge/-RoadMap-daa04a?style=for-the-badge" alt="RoadMap">
     </a>
+    <a href="https://github.com/caido/caido/wiki">
+        <img src="https://img.shields.io/badge/-Wiki-40454f?style=for-the-badge" alt="Wiki">
+    </a>
 </p>
 
 <h3 align="middle">Built from the ground up in Rust, Caido aims to help security professionals and enthusiasts audit web applications with efficiency and ease</h3>
