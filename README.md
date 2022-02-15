@@ -8,8 +8,8 @@
     <a href="https://github.com/orgs/caido/projects/4/views/20">
         <img src="https://img.shields.io/badge/-RoadMap-daa04a?style=for-the-badge" alt="RoadMap">
     </a>
-    <a href="https://github.com/caido/caido/wiki">
-        <img src="https://img.shields.io/badge/-Wiki-40454f?style=for-the-badge" alt="Wiki">
+    <a href="https://docs.caido.io/">
+        <img src="https://img.shields.io/badge/-Documentation-40454f?style=for-the-badge" alt="Documentation">
     </a>
 </p>
 
