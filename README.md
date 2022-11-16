@@ -1,4 +1,4 @@
-<h2 align="middle">Caido</p>
+<h2 align="middle">Caido</h2>
 <h3 align="middle">A lightweight web security auditing toolkit</h3>
 
 <p align="center">
