@@ -1,33 +1,34 @@
-<h2 align="middle">Caido</h2>
-<h3 align="middle">A lightweight web security auditing toolkit</h3>
+<div align="center">
+  <img width="1000" alt="image" src="https://user-images.githubusercontent.com/6225588/211916659-567751d1-0225-402b-9141-4145c18b0834.png">
 
-<p align="center">
-    <a href="https://github.com/caido/caido/issues">
-        <img src="https://img.shields.io/badge/-Bugs%20%2F%20Features-a0213e?style=for-the-badge" alt="Bugs/Features">
-    </a>
-    <a href="https://github.com/orgs/caido/projects/4/views/20">
-        <img src="https://img.shields.io/badge/-RoadMap-daa04a?style=for-the-badge" alt="RoadMap">
-    </a>
-    <a href="https://docs.caido.io/">
-        <img src="https://img.shields.io/badge/-Documentation-40454f?style=for-the-badge" alt="Documentation">
-    </a>
-</p>
-
-<h3 align="middle">Built from the ground up in Rust, Caido aims to help security professionals and enthusiasts audit web applications with efficiency and ease</h3>
-
-<div align="middle">
-  <img style="border-radius: 1%;" src="https://github.com/caido/caido/blob/main/assets/replay.png?raw=true" alt="replay" />
+  <br />
+  <br />
+  <a href="https://caido.io/">Website</a>
+  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+  <a href="https://dashboard.caido.io/">Dashboard</a>
+  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+  <a href="https://docs.caido.io/" target="_blank">Docs</a>
+  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+  <a href="https://links.caido.io/roadmap">Roadmap</a>
+  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+  <a href="https://links.caido.io/www-discord" target="_blank">Discord</a>
+  <br />
+  <hr />
 </div>
 
-<br>
+## 👋 Welcome
 
-<h3 align="middle">Caido is free during the beta!</h3>
+Welcome to Caido! 
 
-<p align="center">
-    <a href="https://medium.com/@caido">
-        <img src="https://img.shields.io/badge/-Medium-03a87c?style=for-the-badge" alt="Medium">
-    </a>
-    <a href="https://twitter.com/CaidoIO">
-        <img src="https://img.shields.io/badge/-Twitter-00aced?style=for-the-badge" alt="Twitter">
-    </a>
-</p>
+Caido aims to help security professionals and enthusiasts audit web applications with efficiency and ease.
+
+Here you can get involved with the development of our software.
+
+You can learn about upcoming Caido features on our [Roadmap](https://links.caido.io/roadmap). We try to release a new version at least once a month, which you can find in our [releases section](https://github.com/caido/caido/releases) or in your [Caido Dashboard](https://dashboard.caido.io).
+
+<img width="1552" alt="intercept" src="https://user-images.githubusercontent.com/6225588/212757627-e1bdb779-7288-4f3f-8490-c932fb77f012.png">
+
+
+## 💚 Community
+
+Come join our [Discord](https://links.caido.io/www-discord) community and connect with other Caido users! We'd love to have you as part of the conversation and help with any questions you may have.
