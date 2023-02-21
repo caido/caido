@@ -32,7 +32,7 @@ jobs:
           fi
 
   build:
-    if: needs.verify.outputs.valid == 'true'
+    if: needs.meta.outputs.valid == 'true'
     name: Build image
     runs-on: ubuntu-20.04
     needs: meta
