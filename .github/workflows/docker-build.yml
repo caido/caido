@@ -27,7 +27,7 @@ jobs:
       - name: Check Tag
         id: check-tag
         run: |
-          if [[ "v${{ steps.release.outputs.version }}" == ${{ github.ref_name }} ]]; then
+          if [[ v${{ steps.release.outputs.version }} == ${{ github.ref_name }} ]]; then
               echo "valid=true" >> $GITHUB_OUTPUT
           fi
 
