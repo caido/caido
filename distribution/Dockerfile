@@ -14,4 +14,4 @@ USER caido
 EXPOSE 8080
 
 ENTRYPOINT ["caido"]
-CMD ["--listen", "0.0.0.0:8080"]
+CMD ["--no-renderer-sandbox", "--listen", "0.0.0.0:8080"]
