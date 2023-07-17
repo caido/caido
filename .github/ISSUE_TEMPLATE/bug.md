@@ -27,4 +27,5 @@ assignees: ""
 
 OS: <!--- Mac OS, Windows, Debian, CentOS, ... --->
 OS version: <!--- 10.14, 11, ... (kernel version appreciated for linux) --->
+Caido client: <!--- Chrome, Firefox, Caido Desktop, ... --->
 Caido version: <!--- 0.8.0 --->
