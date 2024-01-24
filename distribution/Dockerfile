@@ -7,11 +7,11 @@ RUN \
 
 RUN groupadd -r caido && useradd --no-log-init -m -r -g caido caido
 
-COPY caido /usr/bin/caido
+COPY caido-cli /usr/bin/caido-cli
 
 USER caido
 
 EXPOSE 8080
 
-ENTRYPOINT ["caido"]
+ENTRYPOINT ["caido-cli"]
 CMD ["--no-renderer-sandbox", "--listen", "0.0.0.0:8080"]
