@@ -19,7 +19,7 @@ jobs:
         id: release
         run: |
           JSON=$(curl -s https://api.caido.io/releases/latest)
-          LINK=$(jq -r '.links[] | select(.display == "Linux") | .link' <<< $JSON)
+          LINK=$(jq -r '.links[] | select(.platform == "linux-x86_64" and .kind == "cli") | .link' <<< $JSON)
           echo "link=$LINK" >> $GITHUB_OUTPUT
           VERSION=$(jq -r '.version' <<< $JSON)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
