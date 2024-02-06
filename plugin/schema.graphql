@@ -1,0 +1,2915 @@
+directive @oneOf on INPUT_OBJECT
+
+scalar Alias
+
+type AliasTakenUserError implements UserError {
+	alias: String!
+	code: String!
+}
+
+enum Alteration {
+	MANUAL
+	NONE
+	TAMPER
+}
+
+enum AssistantErrorReason {
+	CONTEXT_EXCEEDED
+	INVALID_MODEL
+	OFFLINE
+	QUOTA_EXCEEDED
+	UNKNOWN
+}
+
+type AssistantMessage {
+	content: String!
+	id: ID!
+	role: AssistantMessageRole!
+	session: AssistantSession!
+}
+
+"""
+An edge in a connection.
+"""
+type AssistantMessageEdge {
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
+	"""
+	The item at the end of the edge
+	"""
+	node: AssistantMessage!
+}
+
+enum AssistantMessageRole {
+	ASSISTANT
+	SYSTEM
+	USER
+}
+
+type AssistantMessageTask {
+	error: AssistantMessageTaskError
+	id: ID!
+	message: AssistantMessage
+	session: AssistantSession!
+}
+
+union AssistantMessageTaskError = AssistantUserError | AuthenticationUserError | OtherUserError
+
+type AssistantModel {
+	id: ID!
+	name: String!
+	tokenCredit: Int!
+}
+
+type AssistantSession {
+	createdAt: DateTime!
+	id: ID!
+	messages: [AssistantMessage!]!
+	modelId: ID!
+	name: String!
+	updatedAt: DateTime!
+}
+
+"""
+An edge in a connection.
+"""
+type AssistantSessionEdge {
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
+	"""
+	The item at the end of the edge
+	"""
+	node: AssistantSession!
+}
+
+type AssistantUsage {
+	balance: Int!
+}
+
+type AssistantUserError implements UserError {
+	code: String!
+	reason: AssistantErrorReason!
+}
+
+enum AuthenticationErrorReason {
+	CLOUD_ERROR
+	CLOUD_UNAVAILABLE
+	DENIED
+	EXPIRED
+	INTERNAL
+	INVALID
+	STALE_DATE
+}
+
+type AuthenticationRequest {
+	expiresAt: DateTime!
+	id: ID!
+	userCode: String!
+	verificationUrl: Url!
+}
+
+enum AuthenticationScope {
+	ASSISTANT
+	OFFLINE
+	PROFILE_READ
+}
+
+type AuthenticationToken {
+	accessToken: Token!
+	expiresAt: DateTime!
+	refreshToken: Token
+	scopes: [AuthenticationScope!]!
+}
+
+type AuthenticationUserError implements UserError {
+	code: String!
+	reason: AuthenticationErrorReason!
+}
+
+type AutomateConcurrencySetting {
+	delay: Int!
+	workers: Int!
+}
+
+input AutomateConcurrencySettingInput {
+	delay: Int!
+	workers: Int!
+}
+
+type AutomateConnectionInfo {
+	host: String!
+	isTls: Boolean!
+	port: Int!
+}
+
+input AutomateConnectionInfoInput {
+	host: String!
+	isTls: Boolean!
+	port: Int!
+}
+
+type AutomateEntry {
+	connection: AutomateConnectionInfo!
+	createdAt: Timestamp!
+	id: ID!
+	name: String!
+	raw: Blob!
+	requests(after: String, before: String, first: Int, last: Int, order: AutomateEntryRequestOrderInput): AutomateEntryRequestConnection!
+	requestsByOffset(limit: Int, offset: Int, order: AutomateEntryRequestOrderInput): AutomateEntryRequestConnection!
+	session: AutomateSession!
+	settings: AutomateSettings!
+}
+
+"""
+An edge in a connection.
+"""
+type AutomateEntryEdge {
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
+	"""
+	The item at the end of the edge
+	"""
+	node: AutomateEntry!
+}
+
+type AutomateEntryRequest {
+	automateEntryId: ID!
+	error: String
+	payloads: [AutomateEntryRequestPayload!]!
+	request: Request!
+	sequenceId: ID!
+}
+
+type AutomateEntryRequestConnection {
+	count: Count!
+	"""
+	A list of edges.
+	"""
+	edges: [AutomateEntryRequestEdge!]!
+	"""
+	A list of nodes.
+	"""
+	nodes: [AutomateEntryRequest!]!
+	"""
+	Information to aid in pagination.
+	"""
+	pageInfo: PageInfo!
+	snapshot: Snapshot!
+}
+
+"""
+An edge in a connection.
+"""
+type AutomateEntryRequestEdge {
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
+	"""
+	The item at the end of the edge
+	"""
+	node: AutomateEntryRequest!
+}
+
+enum AutomateEntryRequestOrderBy {
+	ID
+	PAYLOAD_0
+	PAYLOAD_1
+	PAYLOAD_2
+	PAYLOAD_3
+	PAYLOAD_4
+	POSITION
+	RESPONSE_LENGTH
+	STATUS_CODE
+}
+
+input AutomateEntryRequestOrderInput {
+	by: AutomateEntryRequestOrderBy!
+	ordering: Ordering!
+}
+
+type AutomateEntryRequestPayload {
+	position: Int
+	raw: Blob
+}
+
+type AutomateHostedFilePayload {
+	delimiter: String
+	id: ID!
+}
+
+input AutomateHostedFilePayloadInput {
+	delimiter: String
+	id: ID!
+}
+
+type AutomateNullPayload {
+	quantity: Int!
+}
+
+input AutomateNullPayloadInput {
+	quantity: Int!
+}
+
+type AutomatePayload {
+	kind: AutomatePayloadKind!
+	options: AutomatePayloadOptions!
+	preprocessors: [AutomatePreprocessor!]!
+	urlEncode: AutomateUrlEncodeOptions!
+}
+
+input AutomatePayloadInput {
+	kind: AutomatePayloadKind!
+	options: AutomatePayloadOptionsInput!
+	preprocessors: [AutomatePreprocessorInput!]!
+	urlEncode: AutomateUrlEncodeOptionsInput!
+}
+
+enum AutomatePayloadKind {
+	HOSTED_FILE
+	NULL
+	SIMPLE_LIST
+}
+
+union AutomatePayloadOptions = AutomateSimpleListPayload | AutomateHostedFilePayload | AutomateNullPayload
+
+input AutomatePayloadOptionsInput {
+	hostedFile: AutomateHostedFilePayloadInput
+	null: AutomateNullPayloadInput
+	simpleList: AutomateSimpleListPayloadInput
+}
+
+enum AutomatePayloadStrategy {
+	ALL
+	MATRIX
+	PARALLEL
+	SEQUENTIAL
+}
+
+type AutomatePlaceholder {
+	end: Int!
+	start: Int!
+}
+
+input AutomatePlaceholderInput {
+	end: Int!
+	start: Int!
+}
+
+type AutomatePrefixPreprocessor {
+	value: String!
+}
+
+input AutomatePrefixPreprocessorInput {
+	value: String!
+}
+
+type AutomatePreprocessor {
+	kind: AutomatePreprocessorKind!
+	options: AutomatePreprocessorOptions!
+}
+
+input AutomatePreprocessorInput {
+	kind: AutomatePreprocessorKind!
+	options: AutomatePreprocessorOptionsInput!
+}
+
+enum AutomatePreprocessorKind {
+	PREFIX
+	SUFFIX
+}
+
+union AutomatePreprocessorOptions = AutomatePrefixPreprocessor | AutomateSuffixPreprocessor
+
+input AutomatePreprocessorOptionsInput {
+	prefix: AutomatePrefixPreprocessorInput
+	suffix: AutomateSuffixPreprocessorInput
+}
+
+type AutomateRetryOnFailureSetting {
+	backoff: Int!
+	maximumRetries: Int!
+}
+
+input AutomateRetryOnFailureSettingInput {
+	backoff: Int!
+	maximumRetries: Int!
+}
+
+type AutomateSession {
+	connection: AutomateConnectionInfo!
+	createdAt: Timestamp!
+	entries: [AutomateEntry!]!
+	id: ID!
+	name: String!
+	raw: Blob!
+	settings: AutomateSettings!
+}
+
+type AutomateSessionConnection {
+	count: Count!
+	"""
+	A list of edges.
+	"""
+	edges: [AutomateSessionEdge!]!
+	"""
+	A list of nodes.
+	"""
+	nodes: [AutomateSession!]!
+	"""
+	Information to aid in pagination.
+	"""
+	pageInfo: PageInfo!
+	snapshot: Snapshot!
+}
+
+"""
+An edge in a connection.
+"""
+type AutomateSessionEdge {
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
+	"""
+	The item at the end of the edge
+	"""
+	node: AutomateSession!
+}
+
+type AutomateSettings {
+	closeConnection: Boolean!
+	concurrency: AutomateConcurrencySetting
+	payloads: [AutomatePayload!]!
+	placeholders: [AutomatePlaceholder!]!
+	retryOnFailure: AutomateRetryOnFailureSetting!
+	strategy: AutomatePayloadStrategy!
+	updateContentLength: Boolean!
+}
+
+input AutomateSettingsInput {
+	closeConnection: Boolean!
+	concurrency: AutomateConcurrencySettingInput
+	payloads: [AutomatePayloadInput!]!
+	placeholders: [AutomatePlaceholderInput!]!
+	retryOnFailure: AutomateRetryOnFailureSettingInput!
+	strategy: AutomatePayloadStrategy!
+	updateContentLength: Boolean!
+}
+
+type AutomateSimpleListPayload {
+	list: [String!]!
+}
+
+input AutomateSimpleListPayloadInput {
+	list: [String!]!
+}
+
+type AutomateSuffixPreprocessor {
+	value: String!
+}
+
+input AutomateSuffixPreprocessorInput {
+	value: String!
+}
+
+type AutomateTask {
+	entry: AutomateEntry!
+	id: ID!
+	paused: Boolean!
+}
+
+type AutomateTaskConnection {
+	count: Count!
+	"""
+	A list of edges.
+	"""
+	edges: [AutomateTaskEdge!]!
+	"""
+	A list of nodes.
+	"""
+	nodes: [AutomateTask!]!
+	"""
+	Information to aid in pagination.
+	"""
+	pageInfo: PageInfo!
+	snapshot: Snapshot!
+}
+
+"""
+An edge in a connection.
+"""
+type AutomateTaskEdge {
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
+	"""
+	The item at the end of the edge
+	"""
+	node: AutomateTask!
+}
+
+enum AutomateTaskErrorReason {
+	INTERNAL
+	INVALID_HOSTED_FILE
+}
+
+type AutomateTaskUserError implements UserError {
+	code: String!
+	reason: AutomateTaskErrorReason!
+}
+
+type AutomateUrlEncodeOptions {
+	charset: String
+	enabled: Boolean!
+	nonAscii: Boolean!
+}
+
+input AutomateUrlEncodeOptionsInput {
+	charset: String
+	enabled: Boolean!
+	nonAscii: Boolean!
+}
+
+type Backup {
+	createdAt: DateTime!
+	downloadUri: Uri
+	id: ID!
+	name: String!
+	path: String!
+	project: Project
+	size: Int!
+	status: BackupStatus!
+	updatedAt: DateTime!
+}
+
+enum BackupErrorReason {
+	INVALID
+	NOT_DONE
+}
+
+input BackupSource @oneOf {
+	backupId: ID
+	file: Upload
+}
+
+enum BackupStatus {
+	DONE
+	ERROR
+	PROCESSING
+}
+
+type BackupTask {
+	backup: Backup!
+	id: ID!
+}
+
+union BackupTaskError = BackupUserError | InternalUserError | OtherUserError
+
+type BackupUserError implements UserError {
+	code: String!
+	reason: BackupErrorReason!
+}
+
+scalar Blob
+
+
+type Browser {
+	id: ID!
+	installedAt: DateTime!
+	latest: Boolean!
+	path: String!
+	size: Int!
+	version: String!
+}
+
+union CancelAutomateTaskError = UnknownIdUserError | OtherUserError
+
+type CancelAutomateTaskPayload {
+	cancelledId: ID
+	userError: CancelAutomateTaskError
+}
+
+union CancelBackupTaskError = UnknownIdUserError | OtherUserError
+
+type CancelBackupTaskPayload {
+	cancelledId: ID
+	error: CancelBackupTaskError
+}
+
+type CancelDataExportTaskPayload {
+	cancelledId: ID
+	userError: CancelExportTaskError
+}
+
+union CancelExportTaskError = UnknownIdUserError | OtherUserError
+
+type CancelReplayTaskPayload {
+	cancelledId: ID!
+}
+
+union CancelRestoreBackupTaskError = UnknownIdUserError | OtherUserError
+
+type CancelRestoreBackupTaskPayload {
+	cancelledId: ID
+	error: CancelRestoreBackupTaskError
+}
+
+type Count {
+	snapshot: Snapshot!
+	value: Int!
+}
+
+union CreateAssistantSessionError = PermissionDeniedUserError | OtherUserError
+
+input CreateAssistantSessionInput {
+	modelId: ID!
+	systemMessage: String
+}
+
+type CreateAssistantSessionPayload {
+	error: CreateAssistantSessionError
+	session: AssistantSession
+}
+
+input CreateAutomateSessionInput {
+	requestId: ID
+}
+
+type CreateAutomateSessionPayload {
+	session: AutomateSession
+}
+
+union CreateBackupError = TaskInProgressUserError | PermissionDeniedUserError | OtherUserError
+
+type CreateBackupPayload {
+	error: CreateBackupError
+	task: BackupTask
+}
+
+union CreateFilterPresetError = NameTakenUserError | AliasTakenUserError | PermissionDeniedUserError | OtherUserError
+
+input CreateFilterPresetInput {
+	alias: Alias!
+	clause: JSON!
+	name: String!
+}
+
+type CreateFilterPresetPayload {
+	error: CreateFilterPresetError
+	filter: FilterPreset
+}
+
+input CreateProjectInput {
+	name: String!
+}
+
+type CreateProjectPayload {
+	error: CreateProjectPayloadError
+	project: Project
+}
+
+union CreateProjectPayloadError = NameTakenUserError | PermissionDeniedUserError | OtherUserError
+
+input CreateReplaySessionCollectionInput {
+	name: String!
+}
+
+type CreateReplaySessionCollectionPayload {
+	collection: ReplaySessionCollection
+}
+
+input CreateReplaySessionInput {
+	collectionId: ID
+	requestId: ID
+}
+
+type CreateReplaySessionPayload {
+	session: ReplaySession
+}
+
+union CreateScopeError = InvalidGlobTermsUserError | OtherUserError
+
+input CreateScopeInput {
+	allowlist: [String!]!
+	denylist: [String!]!
+	name: String!
+}
+
+type CreateScopePayload {
+	error: CreateScopeError
+	scope: Scope
+}
+
+union CreateSitemapEntriesError = UnknownIdUserError | OtherUserError
+
+type CreateSitemapEntriesPayload {
+	error: CreateSitemapEntriesError
+}
+
+input CreateTamperRuleCollectionInput {
+	name: String!
+}
+
+type CreateTamperRuleCollectionPayload {
+	collection: TamperRuleCollection
+}
+
+union CreateTamperRuleError = InvalidRegexUserError | OtherUserError
+
+input CreateTamperRuleInput {
+	collectionId: ID!
+	isEnabled: Boolean!
+	isRegex: Boolean!
+	matchTerm: String!
+	name: String!
+	replaceTerm: String!
+	strategy: TamperStrategy!
+}
+
+type CreateTamperRulePayload {
+	error: CreateTamperRuleError
+	rule: TamperRule
+}
+
+input CreateUpstreamProxyInput {
+	allowlist: [String!]!
+	auth: UpstreamProxyAuthInput
+	denylist: [String!]!
+	enabled: Boolean!
+	host: String!
+	kind: UpstreamProxyKind!
+	port: Int!
+}
+
+type CreateUpstreamProxyPayload {
+	proxy: UpstreamProxy
+}
+
+union CreateWorkflowError = WorkflowUserError | OtherUserError
+
+input CreateWorkflowInput {
+	definition: JsonObject!
+}
+
+type CreateWorkflowPayload {
+	error: CreateWorkflowError
+	workflow: Workflow
+}
+
+type CreatedAssistantMessagePayload {
+	messageEdge: AssistantMessageEdge!
+	snapshot: Snapshot!
+}
+
+type CreatedAssistantMessageTaskPayload {
+	task: AssistantMessageTask!
+}
+
+type CreatedAssistantSessionPayload {
+	sessionEdge: AssistantSessionEdge!
+	snapshot: Snapshot!
+}
+
+union CreatedAuthenticationTokenError = AuthenticationUserError | OtherUserError
+
+type CreatedAuthenticationTokenPayload {
+	error: CreatedAuthenticationTokenError
+	token: AuthenticationToken
+}
+
+type CreatedAutomateEntryPayload {
+	automateEntryEdge: AutomateEntryEdge!
+	snapshot: Snapshot!
+}
+
+type CreatedAutomateEntryRequestPayload {
+	automateEntryRequestEdge(order: AutomateEntryRequestOrderInput): AutomateEntryRequestEdge!
+	snapshot: Snapshot!
+}
+
+type CreatedAutomateSessionPayload {
+	automateSessionEdge: AutomateSessionEdge!
+	snapshot: Snapshot!
+}
+
+type CreatedAutomateTaskPayload {
+	automateTaskEdge: AutomateTaskEdge!
+	snapshot: Snapshot!
+}
+
+type CreatedBackupPayload {
+	backup: Backup!
+}
+
+type CreatedDataExportPayload {
+	dataExportEdge: DataExportEdge!
+	snapshot: Snapshot!
+}
+
+type CreatedDataExportTaskPayload {
+	exportTaskEdge: DataExportTaskEdge!
+}
+
+type CreatedFilterPresetPayload {
+	filterEdge: FilterPresetEdge!
+}
+
+type CreatedInterceptEntryPayload {
+	interceptEntryEdge(order: RequestResponseOrderInput): InterceptEntryEdge!
+	snapshot: Snapshot!
+}
+
+type CreatedInterceptMessagePayload {
+	messageEdge: InterceptMessageEdge!
+	snapshot: Snapshot!
+}
+
+type CreatedProjectPayload {
+	project: Project!
+}
+
+type CreatedReplaySessionCollectionPayload {
+	collectionEdge: ReplaySessionCollectionEdge!
+	snapshot: Snapshot!
+}
+
+type CreatedReplaySessionPayload {
+	sessionEdge: ReplaySessionEdge!
+	snapshot: Snapshot!
+}
+
+type CreatedRequestPayload {
+	requestEdge(order: RequestResponseOrderInput): RequestEdge!
+	snapshot: Snapshot!
+}
+
+type CreatedScopePayload {
+	scopeEdge: ScopeEdge!
+	snapshot: Snapshot!
+}
+
+type CreatedSitemapEntryPayload {
+	ancestorIds: [ID!]!
+	requestEdge(order: RequestResponseOrderInput): RequestEdge
+	sitemapEntryEdge: SitemapEntryEdge!
+	snapshot: Snapshot!
+}
+
+type CreatedStreamPayload {
+	snapshot: Snapshot!
+	streamEdge(order: StreamOrderInput): StreamEdge!
+}
+
+type CreatedStreamWsMessagePayload {
+	messageEdge(order: StreamWsMessageOrderInput): StreamWsMessageEdge!
+	snapshot: Snapshot!
+}
+
+type CreatedTamperRuleCollectionPayload {
+	collectionEdge: TamperRuleCollectionEdge!
+	snapshot: Snapshot!
+}
+
+type CreatedTamperRulePayload {
+	ruleEdge: TamperRuleEdge!
+	snapshot: Snapshot!
+}
+
+type CreatedWorkflowPayload {
+	snapshot: Snapshot!
+	workflowEdge: WorkflowEdge!
+}
+
+type DataExport {
+	createdAt: DateTime!
+	downloadUri: Uri
+	error: String
+	format: DataExportFormat!
+	id: ID!
+	name: String!
+	path: String!
+	size: Int!
+	status: DataExportStatus!
+}
+
+"""
+An edge in a connection.
+"""
+type DataExportEdge {
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
+	"""
+	The item at the end of the edge
+	"""
+	node: DataExport!
+}
+
+enum DataExportFormat {
+	CSV
+	JSON
+}
+
+input DataExportSettings {
+	includeRaw: Boolean!
+}
+
+enum DataExportStatus {
+	CANCELLED
+	DONE
+	ERROR
+	PROCESSING
+}
+
+type DataExportTask {
+	export: DataExport!
+	id: ID!
+}
+
+"""
+An edge in a connection.
+"""
+type DataExportTaskEdge {
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
+	"""
+	The item at the end of the edge
+	"""
+	node: DataExportTask!
+}
+
+"""
+A datetime with timezone offset.
+
+The input is a string in RFC3339 format, e.g. "2022-01-12T04:00:19.12345Z"
+or "2022-01-12T04:00:19+03:00". The output is also a string in RFC3339
+format, but it is always normalized to the UTC (Z) offset, e.g.
+"2022-01-12T04:00:19.12345Z".
+"""
+scalar DateTime
+
+type DeleteAssistantSessionPayload {
+	deletedId: ID
+}
+
+union DeleteAutomateEntryError = TaskInProgressUserError | OtherUserError
+
+type DeleteAutomateEntryPayload {
+	deletedId: ID
+	userError: DeleteAutomateEntryError
+}
+
+type DeleteAutomateSessionPayload {
+	deletedId: ID
+}
+
+union DeleteBackupError = TaskInProgressUserError | OtherUserError
+
+type DeleteBackupPayload {
+	deletedId: ID
+	error: DeleteBackupError
+}
+
+type DeleteBrowserPayload {
+	deletedId: ID
+}
+
+union DeleteDataExportError = TaskInProgressUserError | OtherUserError
+
+type DeleteDataExportPayload {
+	deletedId: ID
+	userError: DeleteDataExportError
+}
+
+type DeleteFilterPresetPayload {
+	deletedId: ID
+}
+
+type DeleteHostedFilePayload {
+	deletedId: ID
+}
+
+union DeleteInterceptEntriesError = TaskInProgressUserError | OtherUserError
+
+type DeleteInterceptEntriesPayload {
+	task: DeleteInterceptEntriesTask
+	userError: DeleteInterceptEntriesError
+}
+
+type DeleteInterceptEntriesTask {
+	deletedEntryIds: [ID!]!
+	id: ID!
+}
+
+union DeleteInterceptEntriesTaskError = InternalUserError | OtherUserError
+
+union DeleteInterceptEntryError = UnknownIdUserError | OtherUserError
+
+type DeleteInterceptEntryPayload {
+	deletedId: ID
+	userError: DeleteInterceptEntryError
+}
+
+type DeleteProjectPayload {
+	deletedId: ID
+	error: DeleteProjectPayloadError
+}
+
+union DeleteProjectPayloadError = ProjectLockedUserError | OtherUserError
+
+type DeleteReplaySessionCollectionPayload {
+	deletedId: ID
+}
+
+type DeleteReplaySessionPayload {
+	deletedId: ID
+}
+
+type DeleteScopePayload {
+	deletedId: ID!
+}
+
+type DeleteTamperRuleCollectionPayload {
+	deletedId: ID
+}
+
+type DeleteTamperRulePayload {
+	deletedId: ID
+}
+
+type DeleteUpstreamProxyPayload {
+	deletedId: ID
+}
+
+type DeleteWorkflowPayload {
+	deletedId: ID
+}
+
+type DeletedAssistantSessionPayload {
+	deletedSessionId: ID!
+	snapshot: Snapshot!
+}
+
+type DeletedAutomateEntryPayload {
+	deletedAutomateEntryId: ID!
+	snapshot: Snapshot!
+}
+
+type DeletedAutomateSessionPayload {
+	deletedAutomateSessionId: ID!
+	snapshot: Snapshot!
+}
+
+union DeletedAutomateTaskError = AutomateTaskUserError | OtherUserError
+
+type DeletedAutomateTaskPayload {
+	deletedAutomateTaskId: ID!
+	error: DeletedAutomateTaskError
+	snapshot: Snapshot!
+}
+
+type DeletedBackupPayload {
+	deletedBackupId: ID!
+}
+
+type DeletedBrowserPayload {
+	deletedBrowserId: ID!
+}
+
+type DeletedDataExportPayload {
+	deletedDataExportId: ID!
+	snapshot: Snapshot!
+}
+
+type DeletedDataExportTaskPayload {
+	deletedExportTaskId: ID!
+}
+
+type DeletedFilterPresetPayload {
+	deletedFilterId: ID!
+}
+
+type DeletedHostedFilePayload {
+	deletedHostedFileId: ID!
+}
+
+type DeletedInterceptEntryPayload {
+	deletedEntryId: ID!
+	snapshot: Snapshot!
+}
+
+type DeletedInterceptMessagePayload {
+	deletedMessageId: ID!
+	snapshot: Snapshot!
+}
+
+type DeletedProjectPayload {
+	deletedProjectId: ID!
+}
+
+type DeletedReplaySessionCollectionPayload {
+	deletedCollectionId: ID!
+	snapshot: Snapshot!
+}
+
+type DeletedReplaySessionPayload {
+	deletedSessionId: ID!
+	snapshot: Snapshot!
+}
+
+type DeletedScopePayload {
+	deletedScopeId: ID!
+	snapshot: Snapshot!
+}
+
+type DeletedTamperRuleCollectionPayload {
+	deletedCollectionId: ID!
+	snapshot: Snapshot!
+}
+
+type DeletedTamperRulePayload {
+	deletedRuleId: ID!
+	snapshot: Snapshot!
+}
+
+type DeletedWorkflowPayload {
+	deletedWorkflowId: ID!
+	snapshot: Snapshot!
+}
+
+type DisableTamperRulePayload {
+	rule: TamperRule
+}
+
+type DropInterceptMessagePayload {
+	droppedId: ID
+}
+
+type DuplicateAutomateSessionPayload {
+	session: AutomateSession
+}
+
+type EnableTamperRulePayload {
+	rule: TamperRule
+}
+
+input FilterClauseInterceptEntryInput {
+	AND: [FilterClauseInterceptEntryInput!]
+	OR: [FilterClauseInterceptEntryInput!]
+	request: FilterClauseRequestInput
+	response: FilterClauseResponseInput
+}
+
+input FilterClauseRequestInput {
+	fileExtension: FilterExprStringInput
+	host: FilterExprStringInput
+	method: FilterExprStringInput
+	path: FilterExprStringInput
+	port: FilterExprIntInput
+	raw: FilterExprStringInput
+}
+
+input FilterClauseRequestResponseInput {
+	AND: [FilterClauseRequestResponseInput!]
+	OR: [FilterClauseRequestResponseInput!]
+	preset: FilterExprPresetInput
+	request: FilterClauseRequestInput
+	response: FilterClauseResponseInput
+	source: FilterExprStringInput
+}
+
+input FilterClauseResponseInput {
+	raw: FilterExprStringInput
+	statusCode: FilterExprIntInput
+}
+
+input FilterExprIntInput {
+	operator: FilterOperatorInt!
+	value: Int
+}
+
+input FilterExprPresetInput {
+	id: ID!
+}
+
+input FilterExprStringInput {
+	operator: FilterOperatorString!
+	value: String
+}
+
+enum FilterOperatorInt {
+	EQ
+	GT
+	GTE
+	LT
+	LTE
+	NE
+}
+
+enum FilterOperatorString {
+	CONT
+	EQ
+	LIKE
+	NCONT
+	NE
+	NLIKE
+}
+
+type FilterPreset {
+	alias: Alias!
+	clause: JSON!
+	id: ID!
+	name: String!
+}
+
+"""
+An edge in a connection.
+"""
+type FilterPresetEdge {
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
+	"""
+	The item at the end of the edge
+	"""
+	node: FilterPreset!
+}
+
+type FinishedBackupTaskCancelled {
+	taskId: ID!
+}
+
+type FinishedBackupTaskError {
+	error: BackupTaskError!
+	taskId: ID!
+}
+
+union FinishedBackupTaskPayload = FinishedBackupTaskSuccess | FinishedBackupTaskError | FinishedBackupTaskCancelled
+
+type FinishedBackupTaskSuccess {
+	task: BackupTask!
+}
+
+type FinishedDeleteInterceptEntriesTaskPayload {
+	error: DeleteInterceptEntriesTaskError
+	task: DeleteInterceptEntriesTask!
+}
+
+type FinishedRestoreBackupTaskCancelled {
+	taskId: ID!
+}
+
+type FinishedRestoreBackupTaskError {
+	error: RestoreBackupTaskError!
+	taskId: ID!
+}
+
+union FinishedRestoreBackupTaskPayload = FinishedRestoreBackupTaskSuccess | FinishedRestoreBackupTaskError | FinishedRestoreBackupTaskCancelled
+
+type FinishedRestoreBackupTaskSuccess {
+	task: RestoreBackupTask!
+}
+
+
+input ForwardInterceptMessageInput @oneOf {
+	request: ForwardInterceptRequestMessageInput
+	response: ForwardInterceptResponseMessageInput
+}
+
+type ForwardInterceptMessagePayload {
+	forwardedId: ID
+}
+
+input ForwardInterceptRequestMessageInput {
+	updateContentLength: Boolean!
+	updateRaw: Blob!
+}
+
+input ForwardInterceptResponseMessageInput {
+	updateContentLength: Boolean!
+	updateRaw: Blob!
+}
+
+type GlobalConfig {
+	address: String!
+	onboarding: OnboardingState!
+}
+
+type HostedFile {
+	createdAt: DateTime!
+	id: ID!
+	name: String!
+	path: String!
+	size: Int!
+	updatedAt: DateTime!
+}
+
+
+scalar Image
+
+union InstallBrowserError = UnsupportedPlatformUserError | OtherUserError
+
+type InstallBrowserPayload {
+	browser: Browser
+	error: InstallBrowserError
+}
+
+
+type InterceptEntry {
+	id: ID!
+	request: Request!
+}
+
+type InterceptEntryConnection {
+	count: Count!
+	"""
+	A list of edges.
+	"""
+	edges: [InterceptEntryEdge!]!
+	"""
+	A list of nodes.
+	"""
+	nodes: [InterceptEntry!]!
+	"""
+	Information to aid in pagination.
+	"""
+	pageInfo: PageInfo!
+	snapshot: Snapshot!
+}
+
+"""
+An edge in a connection.
+"""
+type InterceptEntryEdge {
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
+	"""
+	The item at the end of the edge
+	"""
+	node: InterceptEntry!
+}
+
+enum InterceptKind {
+	REQUEST
+	RESPONSE
+}
+
+interface InterceptMessage {
+	id: ID!
+}
+
+type InterceptMessageConnection {
+	count: Count!
+	"""
+	A list of edges.
+	"""
+	edges: [InterceptMessageEdge!]!
+	"""
+	A list of nodes.
+	"""
+	nodes: [InterceptMessage!]!
+	"""
+	Information to aid in pagination.
+	"""
+	pageInfo: PageInfo!
+	snapshot: Snapshot!
+}
+
+"""
+An edge in a connection.
+"""
+type InterceptMessageEdge {
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
+	"""
+	The item at the end of the edge
+	"""
+	node: InterceptMessage!
+}
+
+type InterceptOptions {
+	request: InterceptRequestOptions!
+	response: InterceptResponseOptions!
+	scope: InterceptScopeOptions
+}
+
+input InterceptOptionsInput {
+	request: InterceptRequestOptionsInput!
+	response: InterceptResponseOptionsInput!
+	scope: InterceptScopeOptionsInput
+}
+
+type InterceptRequestMessage implements InterceptMessage {
+	id: ID!
+	request: Request!
+}
+
+type InterceptRequestOptions {
+	enabled: Boolean!
+}
+
+input InterceptRequestOptionsInput {
+	enabled: Boolean!
+}
+
+type InterceptResponseMessage implements InterceptMessage {
+	id: ID!
+	request: Request!
+	response: Response!
+}
+
+type InterceptResponseOptions {
+	enabled: Boolean!
+}
+
+input InterceptResponseOptionsInput {
+	enabled: Boolean!
+}
+
+type InterceptScopeOptions {
+	scopeId: ID!
+}
+
+input InterceptScopeOptionsInput {
+	scopeId: ID!
+}
+
+enum InterceptStatus {
+	PAUSED
+	RUNNING
+}
+
+type InternalUserError implements UserError {
+	code: String!
+	message: String!
+}
+
+type InvalidGlobTermsUserError implements UserError {
+	code: String!
+	terms: [String!]!
+}
+
+type InvalidRegexUserError implements UserError {
+	code: String!
+	term: String!
+}
+
+"""
+A scalar that can represent any JSON value.
+"""
+scalar JSON
+
+scalar JsonObject
+
+type LogoutPayload {
+	success: Boolean!
+}
+
+type MoveReplaySessionPayload {
+	session: ReplaySession
+}
+
+type MoveTamperRulePayload {
+	rule: TamperRule
+}
+
+type MutationRoot {
+	cancelAutomateTask(id: ID!): CancelAutomateTaskPayload!
+	cancelBackupTask(id: ID!): CancelBackupTaskPayload!
+	cancelDataExportTask(id: ID!): CancelDataExportTaskPayload!
+	cancelReplayTask(id: ID!): CancelReplayTaskPayload!
+	cancelRestoreBackupTask(id: ID!): CancelRestoreBackupTaskPayload!
+	createAssistantSession(input: CreateAssistantSessionInput!): CreateAssistantSessionPayload!
+	createAutomateSession(input: CreateAutomateSessionInput!): CreateAutomateSessionPayload!
+	createBackup(projectId: ID!): CreateBackupPayload!
+	createFilterPreset(input: CreateFilterPresetInput!): CreateFilterPresetPayload!
+	createProject(input: CreateProjectInput!): CreateProjectPayload!
+	createReplaySession(input: CreateReplaySessionInput!): CreateReplaySessionPayload!
+	createReplaySessionCollection(input: CreateReplaySessionCollectionInput!): CreateReplaySessionCollectionPayload!
+	createScope(input: CreateScopeInput!): CreateScopePayload!
+	createSitemapEntries(requestId: ID!): CreateSitemapEntriesPayload!
+	createTamperRule(input: CreateTamperRuleInput!): CreateTamperRulePayload!
+	createTamperRuleCollection(input: CreateTamperRuleCollectionInput!): CreateTamperRuleCollectionPayload!
+	createUpstreamProxy(input: CreateUpstreamProxyInput!): CreateUpstreamProxyPayload!
+	createWorkflow(input: CreateWorkflowInput!): CreateWorkflowPayload!
+	deleteAssistantSession(id: ID!): DeleteAssistantSessionPayload!
+	deleteAutomateEntry(id: ID!): DeleteAutomateEntryPayload!
+	deleteAutomateSession(id: ID!): DeleteAutomateSessionPayload!
+	deleteBackup(id: ID!): DeleteBackupPayload!
+	deleteBrowser: DeleteBrowserPayload!
+	deleteDataExport(id: ID!): DeleteDataExportPayload!
+	deleteFilterPreset(id: ID!): DeleteFilterPresetPayload!
+	deleteHostedFile(id: ID!): DeleteHostedFilePayload!
+	deleteInterceptEntries(filter: FilterClauseInterceptEntryInput, scopeId: ID): DeleteInterceptEntriesPayload!
+	deleteInterceptEntry(id: ID!): DeleteInterceptEntryPayload!
+	deleteProject(id: ID!): DeleteProjectPayload!
+	deleteReplaySession(id: ID!): DeleteReplaySessionPayload!
+	deleteReplaySessionCollection(id: ID!): DeleteReplaySessionCollectionPayload!
+	deleteScope(id: ID!): DeleteScopePayload!
+	deleteTamperRule(id: ID!): DeleteTamperRulePayload!
+	deleteTamperRuleCollection(id: ID!): DeleteTamperRuleCollectionPayload!
+	deleteUpstreamProxy(id: ID!): DeleteUpstreamProxyPayload!
+	deleteWorkflow(id: ID!): DeleteWorkflowPayload!
+	disableTamperRule(id: ID!): DisableTamperRulePayload!
+	dropInterceptMessage(id: ID!): DropInterceptMessagePayload!
+	duplicateAutomateSession(id: ID!): DuplicateAutomateSessionPayload!
+	enableTamperRule(id: ID!): EnableTamperRulePayload!
+	forwardInterceptMessage(id: ID!, input: ForwardInterceptMessageInput): ForwardInterceptMessagePayload!
+	installBrowser: InstallBrowserPayload!
+	logout: LogoutPayload!
+	moveReplaySession(id: ID!, collectionId: ID!): MoveReplaySessionPayload!
+	moveTamperRule(id: ID!, collectionId: ID!): MoveTamperRulePayload!
+	pauseAutomateTask(id: ID!): PauseAutomateTaskPayload!
+	pauseIntercept: PauseInterceptPayload!
+	rankTamperRule(id: ID!, input: RankTamperRuleInput!): RankTamperRulePayload!
+	rankUpstreamProxy(id: ID!, input: RankUpstreamProxyInput!): RankUpstreamProxyPayload!
+	refreshAuthenticationToken(refreshToken: Token!): RefreshAuthenticationTokenPayload!
+	renameAssistantSession(id: ID!, name: String!): RenameAssistantSessionPayload!
+	renameAutomateEntry(id: ID!, name: String!): RenameAutomateEntryPayload!
+	renameAutomateSession(id: ID!, name: String!): RenameAutomateSessionPayload!
+	renameBackup(id: ID!, name: String!): RenameBackupPayload!
+	renameDataExport(id: ID!, name: String!): RenameDataExportPayload!
+	renameHostedFile(id: ID!, name: String!): RenameHostedFilePayload!
+	renameProject(id: ID!, name: String!): RenameProjectPayload!
+	renameReplaySession(id: ID!, name: String!): RenameReplaySessionPayload!
+	renameReplaySessionCollection(id: ID!, name: String!): RenameReplaySessionCollectionPayload!
+	renameScope(id: ID!, name: String!): RenameScopePayload!
+	renameTamperRule(id: ID!, name: String!): RenameTamperRulePayload!
+	renameTamperRuleCollection(id: ID!, name: String!): RenameTamperRuleCollectionPayload!
+	renameWorkflow(id: ID!, name: String!): RenameWorkflowPayload!
+	renderRequest(id: ID!, input: RenderRequestInput!): RenderRequestPayload!
+	restoreBackup(input: RestoreBackupInput!): RestoreBackupPayload!
+	resumeAutomateTask(id: ID!): ResumeAutomateTaskPayload!
+	resumeIntercept: ResumeInterceptPayload!
+	runConvertWorkflow(id: ID!, input: Blob!): RunConvertWorkflowPayload!
+	selectProject(id: ID!): SelectProjectPayload!
+	sendAssistantMessage(sessionId: ID!, message: String): SendAssistantMessagePayload!
+	setActiveReplaySessionEntry(id: ID!, entryId: ID!): SetActiveReplaySessionEntryPayload! @deprecated(reason: "Remove usage, no replacement")
+	setGlobalConfigOnboarding(input: SetConfigOnboardingInput!): SetConfigOnboardingPayload!
+	setGlobalConfigPort(input: Int!): SetConfigPortPayload!
+	setInterceptOptions(input: InterceptOptionsInput!): SetInterceptOptionsPayload!
+	startAuthenticationFlow: StartAuthenticationFlowPayload!
+	startAutomateTask(automateSessionId: ID!): StartAutomateTaskPayload!
+	startExportRequestsTask(input: StartExportRequestsTaskInput!): StartExportRequestsTaskPayload!
+	startReplayTask(replaySessionId: ID!, input: StartReplayTaskInput!): StartReplayTaskPayload!
+	testTamperRule(input: TestTamperRuleInput!): TestTamperRulePayload!
+	testUpstreamProxy(input: TestUpstreamProxyInput!): TestUpstreamProxyPayload!
+	updateAutomateSession(id: ID!, input: UpdateAutomateSessionInput!): UpdateAutomateSessionPayload!
+	updateBrowser: UpdateBrowserPayload!
+	updateFilterPreset(id: ID!, input: UpdateFilterPresetInput!): UpdateFilterPresetPayload!
+	updateScope(id: ID!, input: UpdateScopeInput!): UpdateScopePayload!
+	updateTamperRule(id: ID!, input: UpdateTamperRuleInput!): UpdateTamperRulePayload!
+	updateUpstreamProxy(id: ID!, input: UpdateUpstreamProxyInput!): UpdateUpstreamProxyPayload!
+	updateViewerSettings(input: UpdateViewerSettingsInput!): UpdateViewerSettingsPayload!
+	updateWorkflow(id: ID!, input: UpdateWorkflowInput!): UpdateWorkflowPayload!
+	uploadHostedFile(input: UploadHostedFileInput!): UploadHostedFilePayload!
+}
+
+type NameTakenUserError implements UserError {
+	code: String!
+	name: String!
+}
+
+type OnboardingState {
+	caCertificate: Boolean!
+	license: Boolean!
+	project: Boolean!
+}
+
+enum Ordering {
+	ASC
+	DESC
+}
+
+type OtherUserError implements UserError {
+	code: String!
+}
+
+"""
+Information about pagination in a connection
+"""
+type PageInfo {
+	"""
+	When paginating forwards, the cursor to continue.
+	"""
+	endCursor: String
+	"""
+	When paginating forwards, are there more items?
+	"""
+	hasNextPage: Boolean!
+	"""
+	When paginating backwards, are there more items?
+	"""
+	hasPreviousPage: Boolean!
+	"""
+	When paginating backwards, the cursor to continue.
+	"""
+	startCursor: String
+}
+
+union PauseAutomateTaskError = UnknownIdUserError | OtherUserError
+
+type PauseAutomateTaskPayload {
+	automateTask: AutomateTask
+	userError: PauseAutomateTaskError
+}
+
+type PauseInterceptPayload {
+	status: InterceptStatus!
+}
+
+enum PermissionDeniedErrorReason {
+	ENTITLEMENT
+}
+
+type PermissionDeniedUserError implements UserError {
+	code: String!
+	reason: PermissionDeniedErrorReason!
+}
+
+type Project {
+	backups: [Backup!]!
+	createdAt: DateTime!
+	id: ID!
+	name: String!
+	path: String!
+	size: Int!
+	status: ProjectStatus!
+	updatedAt: DateTime!
+	version: String!
+}
+
+enum ProjectLockedErrorReason {
+	DELETING
+	EXPORTING
+	NOT_READY
+}
+
+type ProjectLockedUserError implements UserError {
+	code: String!
+	reason: ProjectLockedErrorReason!
+}
+
+enum ProjectStatus {
+	ERROR
+	READY
+	RESTORING
+}
+
+type QueryRoot {
+	assistantModels: [AssistantModel!]!
+	assistantSession(id: ID!): AssistantSession
+	assistantSessions: [AssistantSession!]!
+	automateEntry(id: ID!): AutomateEntry
+	automateSession(id: ID!): AutomateSession
+	automateSessions(after: String, before: String, first: Int, last: Int): AutomateSessionConnection!
+	automateTasks(after: String, before: String, first: Int, last: Int): AutomateTaskConnection!
+	backup(id: ID!): Backup
+	backupTasks: [BackupTask!]!
+	backups: [Backup!]!
+	browser: Browser
+	currentProject: Project
+	dataExport(id: ID!): DataExport
+	dataExportTasks: [DataExportTask!]!
+	dataExports: [DataExport!]!
+	filterPreset(id: ID!): FilterPreset
+	filterPresets: [FilterPreset!]!
+	globalConfig: GlobalConfig!
+	hostedFiles: [HostedFile!]!
+	interceptEntries(after: String, before: String, first: Int, last: Int, filter: FilterClauseInterceptEntryInput, order: RequestResponseOrderInput, scopeId: ID): InterceptEntryConnection!
+	interceptEntriesByOffset(limit: Int, offset: Int, filter: FilterClauseInterceptEntryInput, order: RequestResponseOrderInput, scopeId: ID): InterceptEntryConnection!
+	interceptEntry(id: ID!): InterceptEntry
+	interceptMessages(after: String, before: String, first: Int, last: Int, kind: InterceptKind!): InterceptMessageConnection!
+	interceptOptions: InterceptOptions!
+	interceptStatus: InterceptStatus!
+	projects: [Project!]!
+	replayEntry(id: ID!): ReplayEntry
+	replaySession(id: ID!): ReplaySession
+	replaySessionCollections(after: String, before: String, first: Int, last: Int): ReplaySessionCollectionConnection!
+	replaySessions(after: String, before: String, first: Int, last: Int): ReplaySessionConnection!
+	request(id: ID!): Request
+	requests(after: String, before: String, first: Int, last: Int, filter: FilterClauseRequestResponseInput, order: RequestResponseOrderInput, scopeId: ID): RequestConnection!
+	requestsByOffset(limit: Int, offset: Int, filter: FilterClauseRequestResponseInput, order: RequestResponseOrderInput, scopeId: ID): RequestConnection!
+	response(id: ID!): Response
+	restoreBackupTasks: [RestoreBackupTask!]!
+	runtime: Runtime!
+	scope(id: ID!): Scope
+	scopes: [Scope!]!
+	sitemapDescendantEntries(parentId: ID!, depth: SitemapDescendantsDepth!): SitemapEntryConnection!
+	sitemapEntry(id: ID!): SitemapEntry
+	sitemapRootEntries(scopeId: ID): SitemapEntryConnection!
+	stream(id: ID!): Stream
+	streamWsMessage(id: ID!): StreamWsMessage
+	streamWsMessages(after: String, before: String, first: Int, last: Int, order: StreamWsMessageOrderInput, streamId: ID!): StreamWsMessageConnection!
+	streamWsMessagesByOffset(limit: Int, offset: Int, order: StreamWsMessageOrderInput, streamId: ID!): StreamWsMessageConnection!
+	streams(after: String, before: String, first: Int, last: Int, protocol: StreamProtocol!, order: StreamOrderInput, scopeId: ID): StreamConnection!
+	streamsByOffset(limit: Int, offset: Int, protocol: StreamProtocol!, order: StreamOrderInput, scopeId: ID): StreamConnection!
+	tamperRule(id: ID!): TamperRule
+	tamperRuleCollection(id: ID!): TamperRuleCollection
+	tamperRuleCollections(after: String, before: String, first: Int, last: Int): TamperRuleCollectionConnection!
+	upstreamProxies: [UpstreamProxy!]!
+	viewer: User!
+	workflow(id: ID!): Workflow
+	workflowNodeDefinitions: [WorkflowNodeDefinition!]!
+	workflows: [Workflow!]!
+}
+
+scalar Rank
+
+input RankTamperRuleInput {
+	afterId: ID
+	beforeId: ID
+}
+
+type RankTamperRulePayload {
+	rule: TamperRule
+}
+
+input RankUpstreamProxyInput {
+	afterId: ID
+	beforeId: ID
+}
+
+type RankUpstreamProxyPayload {
+	proxy: UpstreamProxy
+}
+
+union RefreshAuthenticationTokenError = AuthenticationUserError | OtherUserError
+
+type RefreshAuthenticationTokenPayload {
+	error: RefreshAuthenticationTokenError
+	token: AuthenticationToken
+}
+
+type Release {
+	links: [ReleaseLink!]!
+	releasedAt: DateTime!
+	version: String!
+}
+
+type ReleaseLink {
+	display: String!
+	link: String!
+	platform: String!
+}
+
+type RenameAssistantSessionPayload {
+	session: AssistantSession
+}
+
+type RenameAutomateEntryPayload {
+	entry: AutomateEntry
+}
+
+type RenameAutomateSessionPayload {
+	session: AutomateSession
+}
+
+type RenameBackupPayload {
+	backup: Backup
+}
+
+type RenameDataExportPayload {
+	export: DataExport
+}
+
+type RenameHostedFilePayload {
+	hostedFile: HostedFile
+}
+
+type RenameProjectPayload {
+	error: RenameProjectPayloadError
+	project: Project
+}
+
+union RenameProjectPayloadError = NameTakenUserError | OtherUserError
+
+type RenameReplaySessionCollectionPayload {
+	collection: ReplaySessionCollection
+}
+
+type RenameReplaySessionPayload {
+	session: ReplaySession
+}
+
+type RenameScopePayload {
+	scope: Scope!
+}
+
+type RenameTamperRuleCollectionPayload {
+	collection: TamperRuleCollection
+}
+
+type RenameTamperRulePayload {
+	rule: TamperRule
+}
+
+union RenameWorkflowError = UnknownIdUserError | OtherUserError
+
+type RenameWorkflowPayload {
+	error: RenameWorkflowError
+	workflow: Workflow
+}
+
+enum RenderFailedErrorReason {
+	INTERNAL
+	NO_BROWSER
+	NO_DATA
+	TIMEOUT
+}
+
+type RenderFailedUserError implements UserError {
+	code: String!
+	reason: RenderFailedErrorReason!
+}
+
+union RenderRequestError = RenderFailedUserError | OtherUserError
+
+input RenderRequestInput {
+	height: Int!
+	width: Int!
+}
+
+type RenderRequestPayload {
+	error: RenderRequestError
+	render: Image
+}
+
+type ReplayEntry {
+	error: String
+	id: ID!
+	request: Request!
+	sessionId: ID!
+}
+
+type ReplayEntryConnection {
+	count: Count!
+	"""
+	A list of edges.
+	"""
+	edges: [ReplayEntryEdge!]!
+	"""
+	A list of nodes.
+	"""
+	nodes: [ReplayEntry!]!
+	"""
+	Information to aid in pagination.
+	"""
+	pageInfo: PageInfo!
+	snapshot: Snapshot!
+}
+
+"""
+An edge in a connection.
+"""
+type ReplayEntryEdge {
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
+	"""
+	The item at the end of the edge
+	"""
+	node: ReplayEntry!
+}
+
+type ReplaySession {
+	activeEntry: ReplayEntry
+	collection: ReplaySessionCollection!
+	entries(after: String, before: String, first: Int, last: Int, filter: FilterClauseRequestResponseInput, order: RequestResponseOrderInput): ReplayEntryConnection!
+	id: ID!
+	name: String!
+}
+
+type ReplaySessionCollection {
+	id: ID!
+	name: String!
+	sessions: [ReplaySession!]!
+}
+
+type ReplaySessionCollectionConnection {
+	count: Count!
+	"""
+	A list of edges.
+	"""
+	edges: [ReplaySessionCollectionEdge!]!
+	"""
+	A list of nodes.
+	"""
+	nodes: [ReplaySessionCollection!]!
+	"""
+	Information to aid in pagination.
+	"""
+	pageInfo: PageInfo!
+	snapshot: Snapshot!
+}
+
+"""
+An edge in a connection.
+"""
+type ReplaySessionCollectionEdge {
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
+	"""
+	The item at the end of the edge
+	"""
+	node: ReplaySessionCollection!
+}
+
+type ReplaySessionConnection {
+	count: Count!
+	"""
+	A list of edges.
+	"""
+	edges: [ReplaySessionEdge!]!
+	"""
+	A list of nodes.
+	"""
+	nodes: [ReplaySession!]!
+	"""
+	Information to aid in pagination.
+	"""
+	pageInfo: PageInfo!
+	snapshot: Snapshot!
+}
+
+"""
+An edge in a connection.
+"""
+type ReplaySessionEdge {
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
+	"""
+	The item at the end of the edge
+	"""
+	node: ReplaySession!
+}
+
+type ReplayTask {
+	error: String
+	id: ID!
+	replayEntry: ReplayEntry
+}
+
+"""
+An edge in a connection.
+"""
+type ReplayTaskEdge {
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
+	"""
+	The item at the end of the edge
+	"""
+	node: ReplayTask!
+}
+
+type Request {
+	alteration: Alteration!
+	createdAt: Timestamp!
+	edited: Boolean!
+	edits: [Request!]!
+	fileExtension: String
+	host: String!
+	id: ID!
+	isTls: Boolean!
+	length: Int!
+	method: String!
+	path: String!
+	port: Int!
+	query: String!
+	raw: Blob!
+	response: Response
+	source: Source!
+	stream: Stream
+}
+
+type RequestConnection {
+	count: Count!
+	"""
+	A list of edges.
+	"""
+	edges: [RequestEdge!]!
+	"""
+	A list of nodes.
+	"""
+	nodes: [Request!]!
+	"""
+	Information to aid in pagination.
+	"""
+	pageInfo: PageInfo!
+	snapshot: Snapshot!
+}
+
+"""
+An edge in a connection.
+"""
+type RequestEdge {
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
+	"""
+	The item at the end of the edge
+	"""
+	node: Request!
+}
+
+input RequestOptions {
+	withTls: Boolean!
+	withUpdatedContentLength: Boolean!
+}
+
+enum RequestResponseOrderBy {
+	HOST
+	ID
+	METHOD
+	PATH
+	STATUS_CODE
+}
+
+input RequestResponseOrderInput {
+	by: RequestResponseOrderBy!
+	ordering: Ordering!
+}
+
+type Response {
+	alteration: Alteration!
+	createdAt: Timestamp!
+	edited: Boolean!
+	edits: [Response!]!
+	id: ID!
+	length: Int!
+	raw: Blob!
+	roundtripTime: Int!
+	statusCode: Int!
+}
+
+union RestoreBackupError = NameTakenUserError | PermissionDeniedUserError | OtherUserError
+
+input RestoreBackupInput {
+	name: String!
+	source: BackupSource!
+}
+
+type RestoreBackupPayload {
+	error: RestoreBackupError
+	task: RestoreBackupTask
+}
+
+type RestoreBackupTask {
+	backup: Backup
+	id: ID!
+	project: Project!
+}
+
+union RestoreBackupTaskError = BackupUserError | InternalUserError | OtherUserError
+
+union ResumeAutomateTaskError = UnknownIdUserError | OtherUserError
+
+type ResumeAutomateTaskPayload {
+	automateTask: AutomateTask
+	userError: ResumeAutomateTaskError
+}
+
+type ResumeInterceptPayload {
+	status: InterceptStatus!
+}
+
+union RunConvertWorkflowError = WorkflowUserError | PermissionDeniedUserError | OtherUserError
+
+type RunConvertWorkflowPayload {
+	error: RunConvertWorkflowError
+	output: Blob
+}
+
+type Runtime {
+	availableUpdate: Release
+	platform: String!
+	version: String!
+}
+
+type Scope {
+	allowlist: [String!]!
+	denylist: [String!]!
+	id: ID!
+	indexed: Boolean!
+	name: String!
+}
+
+"""
+An edge in a connection.
+"""
+type ScopeEdge {
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
+	"""
+	The item at the end of the edge
+	"""
+	node: Scope!
+}
+
+type SelectProjectPayload {
+	error: SelectProjectPayloadError
+	project: Project
+}
+
+union SelectProjectPayloadError = ProjectLockedUserError | OtherUserError
+
+union SendAssistantMessageError = PermissionDeniedUserError | TaskInProgressUserError | OtherUserError
+
+type SendAssistantMessagePayload {
+	error: SendAssistantMessageError
+	task: AssistantMessageTask
+}
+
+scalar Sensitive
+
+type SetActiveReplaySessionEntryPayload {
+	session: ReplaySession
+}
+
+input SetConfigOnboardingInput {
+	caCertificate: Boolean!
+	license: Boolean!
+	project: Boolean!
+}
+
+type SetConfigOnboardingPayload {
+	config: GlobalConfig!
+}
+
+type SetConfigPortPayload {
+	config: GlobalConfig!
+}
+
+type SetInterceptOptionsPayload {
+	options: InterceptOptions!
+}
+
+enum SitemapDescendantsDepth {
+	ALL
+	DIRECT
+}
+
+type SitemapEntry {
+	hasDescendants: Boolean!
+	id: ID!
+	kind: SitemapEntryKind!
+	label: String!
+	metadata: SitemapEntryMetadata
+	parentId: ID
+	request: Request
+	requests(after: String, before: String, first: Int, last: Int, order: RequestResponseOrderInput): RequestConnection!
+}
+
+type SitemapEntryConnection {
+	count: Count!
+	"""
+	A list of edges.
+	"""
+	edges: [SitemapEntryEdge!]!
+	"""
+	A list of nodes.
+	"""
+	nodes: [SitemapEntry!]!
+	"""
+	Information to aid in pagination.
+	"""
+	pageInfo: PageInfo!
+	snapshot: Snapshot!
+}
+
+"""
+An edge in a connection.
+"""
+type SitemapEntryEdge {
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
+	"""
+	The item at the end of the edge
+	"""
+	node: SitemapEntry!
+}
+
+enum SitemapEntryKind {
+	DIRECTORY
+	DOMAIN
+	REQUEST
+	REQUEST_BODY
+	REQUEST_QUERY
+}
+
+union SitemapEntryMetadata = SitemapEntryMetadataDomain
+
+type SitemapEntryMetadataDomain {
+	isTls: Boolean!
+	port: Int!
+}
+
+scalar Snapshot
+
+enum Source {
+	AUTOMATE
+	INTERCEPT
+	REPLAY
+}
+
+union StartAuthenticationFlowError = AuthenticationUserError | OtherUserError
+
+type StartAuthenticationFlowPayload {
+	error: StartAuthenticationFlowError
+	request: AuthenticationRequest
+}
+
+type StartAutomateTaskPayload {
+	automateTask: AutomateTask
+}
+
+input StartExportRequestsTaskInput {
+	filter: FilterClauseRequestResponseInput
+	format: DataExportFormat!
+	scopeId: ID
+	settings: DataExportSettings!
+}
+
+type StartExportRequestsTaskPayload {
+	error: StartExportRequestsTaskPayloadError
+	task: DataExportTask
+}
+
+union StartExportRequestsTaskPayloadError = PermissionDeniedUserError | OtherUserError
+
+input StartReplayTaskInput {
+	host: String!
+	options: RequestOptions!
+	port: Int!
+	raw: Blob!
+}
+
+type StartReplayTaskPayload {
+	task: ReplayTask!
+}
+
+type StartedBackupTaskPayload {
+	task: BackupTask!
+}
+
+type StartedDeleteInterceptEntriesTaskPayload {
+	task: DeleteInterceptEntriesTask!
+}
+
+type StartedRestoreBackupTaskPayload {
+	task: RestoreBackupTask!
+}
+
+type Stream {
+	createdAt: Timestamp!
+	direction: StreamDirection!
+	host: String!
+	id: ID!
+	isTls: Boolean!
+	path: String!
+	port: Int!
+	protocol: StreamProtocol!
+	source: Source!
+}
+
+type StreamConnection {
+	count: Count!
+	"""
+	A list of edges.
+	"""
+	edges: [StreamEdge!]!
+	"""
+	A list of nodes.
+	"""
+	nodes: [Stream!]!
+	"""
+	Information to aid in pagination.
+	"""
+	pageInfo: PageInfo!
+	snapshot: Snapshot!
+}
+
+enum StreamDirection {
+	BOTH
+	CLIENT
+	SERVER
+}
+
+"""
+An edge in a connection.
+"""
+type StreamEdge {
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
+	"""
+	The item at the end of the edge
+	"""
+	node: Stream!
+}
+
+enum StreamMessageDirection {
+	CLIENT
+	SERVER
+}
+
+enum StreamOrderBy {
+	ID
+}
+
+input StreamOrderInput {
+	by: StreamOrderBy!
+	ordering: Ordering!
+}
+
+enum StreamProtocol {
+	SSE
+	WS
+}
+
+type StreamWsMessage {
+	alteration: Alteration!
+	createdAt: Timestamp!
+	direction: StreamMessageDirection!
+	edited: Boolean!
+	format: StreamWsMessageFormat!
+	id: ID!
+	length: Int!
+	raw: Blob!
+	streamId: ID!
+}
+
+type StreamWsMessageConnection {
+	count: Count!
+	"""
+	A list of edges.
+	"""
+	edges: [StreamWsMessageEdge!]!
+	"""
+	A list of nodes.
+	"""
+	nodes: [StreamWsMessage!]!
+	"""
+	Information to aid in pagination.
+	"""
+	pageInfo: PageInfo!
+	snapshot: Snapshot!
+}
+
+"""
+An edge in a connection.
+"""
+type StreamWsMessageEdge {
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
+	"""
+	The item at the end of the edge
+	"""
+	node: StreamWsMessage!
+}
+
+enum StreamWsMessageFormat {
+	BINARY
+	TEXT
+}
+
+enum StreamWsMessageOrderBy {
+	ID
+}
+
+input StreamWsMessageOrderInput {
+	by: StreamWsMessageOrderBy!
+	ordering: Ordering!
+}
+
+
+type SubscriptionRoot {
+	createdAssistantMessage: CreatedAssistantMessagePayload!
+	createdAssistantMessageTask: CreatedAssistantMessageTaskPayload!
+	createdAssistantSession: CreatedAssistantSessionPayload!
+	createdAuthenticationToken(requestId: ID!): CreatedAuthenticationTokenPayload!
+	createdAutomateEntry: CreatedAutomateEntryPayload!
+	createdAutomateEntryRequest: CreatedAutomateEntryRequestPayload!
+	createdAutomateSession: CreatedAutomateSessionPayload!
+	createdAutomateTask: CreatedAutomateTaskPayload!
+	createdBackup: CreatedBackupPayload!
+	createdDataExport: CreatedDataExportPayload!
+	createdDataExportTask: CreatedDataExportTaskPayload!
+	createdFilterPreset: CreatedFilterPresetPayload!
+	createdInterceptEntry(filter: FilterClauseInterceptEntryInput, scopeId: ID): CreatedInterceptEntryPayload!
+	createdInterceptMessage: CreatedInterceptMessagePayload!
+	createdProject: CreatedProjectPayload!
+	createdReplaySession: CreatedReplaySessionPayload!
+	createdReplaySessionCollection: CreatedReplaySessionCollectionPayload!
+	createdRequest(filter: FilterClauseRequestResponseInput, scopeId: ID): CreatedRequestPayload!
+	createdScope: CreatedScopePayload!
+	createdSitemapEntry(scopeId: ID): CreatedSitemapEntryPayload!
+	createdStream(protocol: StreamProtocol!, scopeId: ID): CreatedStreamPayload!
+	createdStreamWsMessage: CreatedStreamWsMessagePayload!
+	createdTamperRule: CreatedTamperRulePayload!
+	createdTamperRuleCollection: CreatedTamperRuleCollectionPayload!
+	createdWorkflow: CreatedWorkflowPayload!
+	deletedAssistantSession: DeletedAssistantSessionPayload!
+	deletedAutomateEntry: DeletedAutomateEntryPayload!
+	deletedAutomateSession: DeletedAutomateSessionPayload!
+	deletedAutomateTask: DeletedAutomateTaskPayload!
+	deletedBackup: DeletedBackupPayload!
+	deletedBrowser: DeletedBrowserPayload!
+	deletedDataExport: DeletedDataExportPayload!
+	deletedDataExportTask: DeletedDataExportTaskPayload!
+	deletedFilterPreset: DeletedFilterPresetPayload!
+	deletedHostedFile: DeletedHostedFilePayload!
+	deletedInterceptEntry: DeletedInterceptEntryPayload!
+	deletedInterceptMessage: DeletedInterceptMessagePayload!
+	deletedProject: DeletedProjectPayload!
+	deletedReplaySession: DeletedReplaySessionPayload!
+	deletedReplaySessionCollection: DeletedReplaySessionCollectionPayload!
+	deletedScope: DeletedScopePayload!
+	deletedTamperRule: DeletedTamperRulePayload!
+	deletedTamperRuleCollection: DeletedTamperRuleCollectionPayload!
+	deletedWorkflow: DeletedWorkflowPayload!
+	finishedBackupTask: FinishedBackupTaskPayload!
+	finishedDeleteInterceptEntriesTask: FinishedDeleteInterceptEntriesTaskPayload!
+	finishedRestoreBackupTask: FinishedRestoreBackupTaskPayload!
+	installedBrowser: UploadedBrowserPayload!
+	startedBackupTask: StartedBackupTaskPayload!
+	startedDeleteInterceptEntriesTask: StartedDeleteInterceptEntriesTaskPayload!
+	startedRestoreBackupTask: StartedRestoreBackupTaskPayload!
+	updatedAssistantMessageTask: UpdatedAssistantMessageTaskPayload!
+	updatedAssistantSession: UpdatedAssistantSessionPayload!
+	updatedAutomateEntry: UpdatedAutomateEntryPayload!
+	updatedAutomateSession: UpdatedAutomateSessionPayload!
+	updatedAutomateTask: UpdatedAutomateTaskPayload!
+	updatedBackup: UpdatedBackupPayload!
+	updatedBrowser: UpdatedBrowserPayload!
+	updatedDataExport: UpdatedDataExportPayload!
+	updatedDeleteInterceptEntriesTask: UpdatedDeleteInterceptEntriesTaskPayload!
+	updatedFilterPreset: UpdatedFilterPresetPayload!
+	updatedHostedFile: UpdatedHostedFilePayload!
+	updatedInterceptEntry(filter: FilterClauseInterceptEntryInput, scopeId: ID): UpdatedInterceptEntryPayload!
+	updatedInterceptOptions: UpdatedInterceptOptionsPayload!
+	updatedInterceptStatus: UpdatedInterceptStatusPayload!
+	updatedProject: UpdatedProjectPayload!
+	updatedReplaySession: UpdatedReplaySessionPayload!
+	updatedReplaySessionCollection: UpdatedReplaySessionCollectionPayload!
+	updatedReplayTask: UpdatedReplayTaskPayload!
+	updatedRequest(filter: FilterClauseRequestResponseInput, scopeId: ID): UpdatedRequestPayload!
+	updatedScope: UpdatedScopePayload!
+	updatedSitemapEntry(scopeId: ID): UpdatedSitemapEntryPayload!
+	updatedTamperRule: UpdatedTamperRulePayload!
+	updatedTamperRuleCollection: UpdatedTamperRuleCollectionPayload!
+	updatedViewerAssistantUsage: UpdatedViewerAssistantUsagePayload!
+	updatedViewerSettings: UpdatedViewerSettingsPayload!
+	updatedWorkflow: UpdatedWorkflowPayload!
+	uploadedHostedFile: UploadedHostedFilePayload!
+}
+
+type TamperRule {
+	collection: TamperRuleCollection!
+	id: ID!
+	isEnabled: Boolean!
+	isRegex: Boolean!
+	matchTerm: String!
+	name: String!
+	rank: Rank!
+	replaceTerm: String!
+	strategy: TamperStrategy!
+}
+
+type TamperRuleCollection {
+	id: ID!
+	name: String!
+	rules: [TamperRule!]!
+}
+
+type TamperRuleCollectionConnection {
+	count: Count!
+	"""
+	A list of edges.
+	"""
+	edges: [TamperRuleCollectionEdge!]!
+	"""
+	A list of nodes.
+	"""
+	nodes: [TamperRuleCollection!]!
+	"""
+	Information to aid in pagination.
+	"""
+	pageInfo: PageInfo!
+	snapshot: Snapshot!
+}
+
+"""
+An edge in a connection.
+"""
+type TamperRuleCollectionEdge {
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
+	"""
+	The item at the end of the edge
+	"""
+	node: TamperRuleCollection!
+}
+
+"""
+An edge in a connection.
+"""
+type TamperRuleEdge {
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
+	"""
+	The item at the end of the edge
+	"""
+	node: TamperRule!
+}
+
+enum TamperStrategy {
+	REQUEST_BODY
+	REQUEST_FIRST_LINE
+	REQUEST_HEADER
+	RESPONSE_BODY
+	RESPONSE_FIRST_LINE
+	RESPONSE_HEADER
+}
+
+type TaskInProgressUserError implements UserError {
+	code: String!
+	taskId: ID!
+}
+
+union TestTamperRuleError = InvalidRegexUserError | OtherUserError
+
+input TestTamperRuleInput {
+	isRegex: Boolean!
+	matchTerm: String!
+	raw: Blob!
+	replaceTerm: String!
+	strategy: TamperStrategy!
+}
+
+type TestTamperRulePayload {
+	error: TestTamperRuleError
+	raw: Blob
+}
+
+input TestUpstreamProxyInput {
+	auth: UpstreamProxyAuthInput
+	host: String!
+	kind: UpstreamProxyKind!
+	port: Int!
+}
+
+type TestUpstreamProxyPayload {
+	success: Boolean
+}
+
+scalar Timestamp
+
+scalar Token
+
+type UnknownIdUserError implements UserError {
+	code: String!
+	id: ID!
+}
+
+type UnsupportedPlatformUserError implements UserError {
+	code: String!
+}
+
+input UpdateAutomateSessionInput {
+	connection: AutomateConnectionInfoInput!
+	raw: Blob!
+	settings: AutomateSettingsInput!
+}
+
+type UpdateAutomateSessionPayload {
+	session: AutomateSession
+}
+
+union UpdateBrowserError = RenderFailedUserError | UnsupportedPlatformUserError | OtherUserError
+
+type UpdateBrowserPayload {
+	browser: Browser
+	error: UpdateBrowserError
+}
+
+union UpdateFilterPresetError = NameTakenUserError | AliasTakenUserError | OtherUserError
+
+input UpdateFilterPresetInput {
+	alias: Alias!
+	clause: JSON!
+	name: String!
+}
+
+type UpdateFilterPresetPayload {
+	error: UpdateFilterPresetError
+	filter: FilterPreset
+}
+
+union UpdateScopeError = InvalidGlobTermsUserError | OtherUserError
+
+input UpdateScopeInput {
+	allowlist: [String!]!
+	denylist: [String!]!
+	name: String!
+}
+
+type UpdateScopePayload {
+	error: UpdateScopeError
+	scope: Scope
+}
+
+union UpdateTamperRuleError = UnknownIdUserError | InvalidRegexUserError | OtherUserError
+
+input UpdateTamperRuleInput {
+	isEnabled: Boolean!
+	isRegex: Boolean!
+	matchTerm: String!
+	name: String!
+	replaceTerm: String!
+	strategy: TamperStrategy!
+}
+
+type UpdateTamperRulePayload {
+	error: UpdateTamperRuleError
+	rule: TamperRule
+}
+
+input UpdateUpstreamProxyInput {
+	allowlist: [String!]!
+	auth: UpstreamProxyAuthInput
+	denylist: [String!]!
+	enabled: Boolean!
+	host: String!
+	kind: UpstreamProxyKind!
+	port: Int!
+}
+
+type UpdateUpstreamProxyPayload {
+	proxy: UpstreamProxy
+}
+
+input UpdateViewerSettingsInput {
+	data: JSON!
+	migrations: JSON!
+}
+
+type UpdateViewerSettingsPayload {
+	settings: UserSettings
+}
+
+union UpdateWorkflowError = UnknownIdUserError | WorkflowUserError | OtherUserError
+
+input UpdateWorkflowInput {
+	definition: JsonObject!
+}
+
+type UpdateWorkflowPayload {
+	error: UpdateWorkflowError
+	workflow: Workflow
+}
+
+type UpdatedAssistantMessageTaskPayload {
+	task: AssistantMessageTask!
+}
+
+type UpdatedAssistantSessionPayload {
+	sessionEdge: AssistantSessionEdge!
+	snapshot: Snapshot!
+}
+
+type UpdatedAutomateEntryPayload {
+	automateEntryEdge: AutomateEntryEdge!
+	snapshot: Snapshot!
+}
+
+type UpdatedAutomateSessionPayload {
+	automateSessionEdge: AutomateSessionEdge!
+	snapshot: Snapshot!
+}
+
+type UpdatedAutomateTaskPayload {
+	automateTaskEdge: AutomateTaskEdge!
+	snapshot: Snapshot!
+}
+
+type UpdatedBackupPayload {
+	backup: Backup!
+}
+
+type UpdatedBrowserPayload {
+	browser: Browser!
+}
+
+type UpdatedDataExportPayload {
+	dataExportEdge: DataExportEdge!
+	snapshot: Snapshot!
+}
+
+type UpdatedDeleteInterceptEntriesTaskPayload {
+	snapshot: Snapshot!
+	task: DeleteInterceptEntriesTask!
+}
+
+type UpdatedFilterPresetPayload {
+	filterEdge: FilterPresetEdge!
+}
+
+type UpdatedHostedFilePayload {
+	hostedFile: HostedFile!
+}
+
+type UpdatedInterceptEntryPayload {
+	interceptEntryEdge(order: RequestResponseOrderInput): InterceptEntryEdge!
+	snapshot: Snapshot!
+}
+
+type UpdatedInterceptOptionsPayload {
+	options: InterceptOptions!
+}
+
+type UpdatedInterceptStatusPayload {
+	status: InterceptStatus!
+}
+
+type UpdatedProjectPayload {
+	project: Project!
+}
+
+type UpdatedReplaySessionCollectionPayload {
+	collectionEdge: ReplaySessionCollectionEdge!
+	snapshot: Snapshot!
+}
+
+type UpdatedReplaySessionPayload {
+	sessionEdge: ReplaySessionEdge!
+	snapshot: Snapshot!
+}
+
+type UpdatedReplayTaskPayload {
+	replayTaskEdge: ReplayTaskEdge!
+	snapshot: Snapshot!
+}
+
+type UpdatedRequestPayload {
+	requestEdge(order: RequestResponseOrderInput): RequestEdge!
+	snapshot: Snapshot!
+}
+
+type UpdatedScopePayload {
+	scopeEdge: ScopeEdge!
+	snapshot: Snapshot!
+}
+
+type UpdatedSitemapEntryPayload {
+	ancestorIds: [ID!]!
+	oldRequest: Request
+	requestEdge(order: RequestResponseOrderInput): RequestEdge!
+	sitemapEntryEdge: SitemapEntryEdge!
+	snapshot: Snapshot!
+}
+
+type UpdatedTamperRuleCollectionPayload {
+	collectionEdge: TamperRuleCollectionEdge!
+	snapshot: Snapshot!
+}
+
+type UpdatedTamperRulePayload {
+	ruleEdge: TamperRuleEdge!
+	snapshot: Snapshot!
+}
+
+type UpdatedViewerAssistantUsagePayload {
+	usage: AssistantUsage!
+}
+
+type UpdatedViewerSettingsPayload {
+	settings: UserSettings!
+}
+
+type UpdatedWorkflowPayload {
+	snapshot: Snapshot!
+	workflowEdge: WorkflowEdge!
+}
+
+scalar Upload
+
+input UploadHostedFileInput {
+	file: Upload!
+	name: String!
+}
+
+type UploadHostedFilePayload {
+	hostedFile: HostedFile
+}
+
+type UploadedBrowserPayload {
+	browser: Browser!
+}
+
+type UploadedHostedFilePayload {
+	hostedFile: HostedFile!
+}
+
+type UpstreamProxy {
+	allowlist: [String!]!
+	auth: UpstreamProxyAuth
+	denylist: [String!]!
+	enabled: Boolean!
+	host: String!
+	id: ID!
+	kind: UpstreamProxyKind!
+	port: Int!
+	rank: Rank!
+}
+
+union UpstreamProxyAuth = UpstreamProxyAuthBasic
+
+type UpstreamProxyAuthBasic {
+	password: Sensitive!
+	username: String!
+}
+
+input UpstreamProxyAuthBasicInput {
+	password: Sensitive!
+	username: String!
+}
+
+input UpstreamProxyAuthInput @oneOf {
+	basic: UpstreamProxyAuthBasicInput
+}
+
+enum UpstreamProxyKind {
+	HTTP
+	HTTPS
+}
+
+scalar Uri
+
+"""
+URL is a String implementing the [URL Standard](http://url.spec.whatwg.org/)
+"""
+scalar Url
+
+type User {
+	assistantUsage: AssistantUsage!
+	id: ID!
+	profile: UserProfile!
+	settings: UserSettings
+}
+
+type UserEntitlement {
+	name: String!
+}
+
+interface UserError {
+	code: String!
+}
+
+type UserIdentity {
+	email: String!
+	name: String!
+}
+
+type UserProfile {
+	identity: UserIdentity!
+	subscription: UserSubscription!
+}
+
+type UserSettings {
+	data: JSON!
+	migrations: JSON!
+}
+
+type UserSubscription {
+	entitlements: [UserEntitlement!]!
+	plan: UserSubscriptionPlan!
+}
+
+type UserSubscriptionPlan {
+	name: String!
+}
+
+type Workflow {
+	definition: JsonObject!
+	id: ID!
+	kind: WorkflowKind!
+	name: String!
+}
+
+"""
+An edge in a connection.
+"""
+type WorkflowEdge {
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
+	"""
+	The item at the end of the edge
+	"""
+	node: Workflow!
+}
+
+enum WorkflowErrorReason {
+	EXECUTION_ERROR
+	INVALID_INPUT
+	INVALID_PROPERTY
+	INVALID_WORKFLOW
+}
+
+enum WorkflowKind {
+	CONVERT
+}
+
+type WorkflowNodeDefinition {
+	raw: JsonObject!
+}
+
+type WorkflowUserError implements UserError {
+	code: String!
+	message: String!
+	nodeId: ID
+	reason: WorkflowErrorReason!
+}
+
+schema {
+	query: QueryRoot
+	mutation: MutationRoot
+	subscription: SubscriptionRoot
+}
