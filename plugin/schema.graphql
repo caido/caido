@@ -225,8 +225,9 @@ enum AutomateEntryRequestOrderBy {
 	PAYLOAD_3
 	PAYLOAD_4
 	POSITION
-	RESPONSE_LENGTH
-	STATUS_CODE
+	RESP_LENGTH
+	RESP_ROUNDTRIP_TIME
+	RESP_STATUS_CODE
 }
 
 input AutomateEntryRequestOrderInput {
@@ -763,7 +764,7 @@ type CreatedFilterPresetPayload {
 }
 
 type CreatedInterceptEntryPayload {
-	interceptEntryEdge(order: RequestResponseOrderInput): InterceptEntryEdge!
+	interceptEntryEdge(order: InterceptEntryOrderInput): InterceptEntryEdge!
 	snapshot: Snapshot!
 }
 
@@ -1107,6 +1108,7 @@ type EnableTamperRulePayload {
 input FilterClauseInterceptEntryInput {
 	AND: [FilterClauseInterceptEntryInput!]
 	OR: [FilterClauseInterceptEntryInput!]
+	preset: FilterExprPresetInput
 	request: FilterClauseRequestInput
 	response: FilterClauseResponseInput
 }
@@ -1117,6 +1119,7 @@ input FilterClauseRequestInput {
 	method: FilterExprStringInput
 	path: FilterExprStringInput
 	port: FilterExprIntInput
+	query: FilterExprStringInput
 	raw: FilterExprStringInput
 }
 
@@ -1164,6 +1167,8 @@ enum FilterOperatorString {
 	NCONT
 	NE
 	NLIKE
+	NREGEX
+	REGEX
 }
 
 type FilterPreset {
@@ -1301,6 +1306,24 @@ type InterceptEntryEdge {
 	The item at the end of the edge
 	"""
 	node: InterceptEntry!
+}
+
+enum InterceptEntryOrderBy {
+	ID
+	REQ_CREATED_AT
+	REQ_FILE_EXTENSION
+	REQ_HOST
+	REQ_METHOD
+	REQ_PATH
+	REQ_QUERY
+	RESP_LENGTH
+	RESP_ROUNDTRIP_TIME
+	RESP_STATUS_CODE
+}
+
+input InterceptEntryOrderInput {
+	by: InterceptEntryOrderBy!
+	ordering: Ordering!
 }
 
 enum InterceptKind {
@@ -1632,8 +1655,8 @@ type QueryRoot {
 	filterPresets: [FilterPreset!]!
 	globalConfig: GlobalConfig!
 	hostedFiles: [HostedFile!]!
-	interceptEntries(after: String, before: String, first: Int, last: Int, filter: FilterClauseInterceptEntryInput, order: RequestResponseOrderInput, scopeId: ID): InterceptEntryConnection!
-	interceptEntriesByOffset(limit: Int, offset: Int, filter: FilterClauseInterceptEntryInput, order: RequestResponseOrderInput, scopeId: ID): InterceptEntryConnection!
+	interceptEntries(after: String, before: String, first: Int, last: Int, filter: FilterClauseInterceptEntryInput, order: InterceptEntryOrderInput, scopeId: ID): InterceptEntryConnection!
+	interceptEntriesByOffset(limit: Int, offset: Int, filter: FilterClauseInterceptEntryInput, order: InterceptEntryOrderInput, scopeId: ID): InterceptEntryConnection!
 	interceptEntry(id: ID!): InterceptEntry
 	interceptMessages(after: String, before: String, first: Int, last: Int, kind: InterceptKind!): InterceptMessageConnection!
 	interceptOptions: InterceptOptions!
@@ -1829,10 +1852,19 @@ type ReplayEntryEdge {
 	node: ReplayEntry!
 }
 
+enum ReplayEntryOrderBy {
+	ID
+}
+
+input ReplayEntryOrderInput {
+	by: ReplayEntryOrderBy!
+	ordering: Ordering!
+}
+
 type ReplaySession {
 	activeEntry: ReplayEntry
 	collection: ReplaySessionCollection!
-	entries(after: String, before: String, first: Int, last: Int, filter: FilterClauseRequestResponseInput, order: RequestResponseOrderInput): ReplayEntryConnection!
+	entries(after: String, before: String, first: Int, last: Int, order: ReplayEntryOrderInput): ReplayEntryConnection!
 	id: ID!
 	name: String!
 }
@@ -1982,11 +2014,17 @@ input RequestOptions {
 }
 
 enum RequestResponseOrderBy {
+	CREATED_AT
+	FILE_EXTENSION
 	HOST
 	ID
 	METHOD
 	PATH
-	STATUS_CODE
+	QUERY
+	RESP_LENGTH
+	RESP_ROUNDTRIP_TIME
+	RESP_STATUS_CODE
+	SOURCE
 }
 
 input RequestResponseOrderInput {
@@ -2695,7 +2733,7 @@ type UpdatedHostedFilePayload {
 }
 
 type UpdatedInterceptEntryPayload {
-	interceptEntryEdge(order: RequestResponseOrderInput): InterceptEntryEdge!
+	interceptEntryEdge(order: InterceptEntryOrderInput): InterceptEntryEdge!
 	snapshot: Snapshot!
 }
 
