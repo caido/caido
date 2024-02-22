@@ -1533,6 +1533,7 @@ type MutationRoot {
 	startReplayTask(replaySessionId: ID!, input: StartReplayTaskInput!): StartReplayTaskPayload!
 	testTamperRule(input: TestTamperRuleInput!): TestTamperRulePayload!
 	testUpstreamProxy(input: TestUpstreamProxyInput!): TestUpstreamProxyPayload!
+	toggleWorkflow(id: ID!, enabled: Boolean!): ToggleWorkflowPayload!
 	updateAutomateSession(id: ID!, input: UpdateAutomateSessionInput!): UpdateAutomateSessionPayload!
 	updateBrowser: UpdateBrowserPayload!
 	updateFilterPreset(id: ID!, input: UpdateFilterPresetInput!): UpdateFilterPresetPayload!
@@ -1967,6 +1968,7 @@ type Request {
 	id: ID!
 	isTls: Boolean!
 	length: Int!
+	metadata: RequestMetadata!
 	method: String!
 	path: String!
 	port: Int!
@@ -2006,6 +2008,10 @@ type RequestEdge {
 	The item at the end of the edge
 	"""
 	node: Request!
+}
+
+type RequestMetadata {
+	color: String
 }
 
 input RequestOptions {
@@ -2463,6 +2469,7 @@ type SubscriptionRoot {
 	updatedReplaySessionCollection: UpdatedReplaySessionCollectionPayload!
 	updatedReplayTask: UpdatedReplayTaskPayload!
 	updatedRequest(filter: FilterClauseRequestResponseInput, scopeId: ID): UpdatedRequestPayload!
+	updatedRequestMetadata: UpdatedRequestMetadataPayload!
 	updatedScope: UpdatedScopePayload!
 	updatedSitemapEntry(scopeId: ID): UpdatedSitemapEntryPayload!
 	updatedTamperRule: UpdatedTamperRulePayload!
@@ -2577,6 +2584,13 @@ type TestUpstreamProxyPayload {
 }
 
 scalar Timestamp
+
+union ToggleWorkflowError = UnknownIdUserError | OtherUserError
+
+type ToggleWorkflowPayload {
+	error: ToggleWorkflowError
+	workflow: Workflow
+}
 
 scalar Token
 
@@ -2764,6 +2778,12 @@ type UpdatedReplayTaskPayload {
 	snapshot: Snapshot!
 }
 
+type UpdatedRequestMetadataPayload {
+	metadata: RequestMetadata!
+	requestIds: [ID!]!
+	snapshot: Snapshot!
+}
+
 type UpdatedRequestPayload {
 	requestEdge(order: RequestResponseOrderInput): RequestEdge!
 	snapshot: Snapshot!
@@ -2905,6 +2925,7 @@ type UserSubscriptionPlan {
 
 type Workflow {
 	definition: JsonObject!
+	enabled: Boolean!
 	id: ID!
 	kind: WorkflowKind!
 	name: String!
@@ -2933,6 +2954,7 @@ enum WorkflowErrorReason {
 
 enum WorkflowKind {
 	CONVERT
+	PASSIVE
 }
 
 type WorkflowNodeDefinition {
