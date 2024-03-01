@@ -1,0 +1,587 @@
+openapi: 3.0.3
+info:
+  title: cloud-backend
+  version: 0.1.0
+paths:
+  /instance/alive:
+    post:
+      tags:
+      - instance
+      summary: Instance will call this endpoint at startup and every 24H
+      description: Instance will call this endpoint at startup and every 24H
+      operationId: ping_alive
+      responses:
+        '200':
+          description: Instance alive status recorded
+  /instance/assistant/complete:
+    post:
+      tags:
+      - instance
+      operationId: complete
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssistantCompletionInput'
+        required: true
+      responses:
+        '200':
+          description: Assistant completion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssistantCompletionPayload'
+  /instance/assistant/models:
+    get:
+      tags:
+      - instance
+      operationId: get_models
+      responses:
+        '200':
+          description: Assistant models
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssistantModelsPayload'
+  /instance/assistant/usage:
+    get:
+      tags:
+      - instance
+      operationId: get_usage
+      responses:
+        '200':
+          description: Assistant usage
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssistantUsagePayload'
+  /instance/owner:
+    get:
+      tags:
+      - instance
+      summary: Instance will retrieve its owner for access control using this endpoint
+      description: Instance will retrieve its owner for access control using this endpoint
+      operationId: get_owner
+      responses:
+        '200':
+          description: Instance owner
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstanceOwnerPayload'
+  /instance/user/profile:
+    get:
+      tags:
+      - instance
+      operationId: get_profile
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfilePayload'
+  /instance/user/session:
+    get:
+      tags:
+      - instance
+      operationId: get_session
+      responses:
+        '200':
+          description: User session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSessionPayload'
+  /instance/user/session/revoke:
+    post:
+      tags:
+      - instance
+      operationId: revoke_session
+      responses:
+        '200':
+          description: User session revoked
+  /oauth2/device/authorize:
+    post:
+      tags:
+      - instance
+      operationId: device_authorize
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeviceAuthorizeInput'
+        required: true
+      responses:
+        '200':
+          description: Created device authorization request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceAuthorizePayload'
+  /oauth2/register:
+    post:
+      tags:
+      - instance
+      operationId: register_client
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterClientInput'
+        required: true
+      responses:
+        '201':
+          description: Created client
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterClientPayload'
+  /oauth2/register/{id}:
+    put:
+      tags:
+      - instance
+      operationId: update_client
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateClientInput'
+        required: true
+      responses:
+        '200':
+          description: Updated client
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateClientPayload'
+  /oauth2/token:
+    post:
+      tags:
+      - instance
+      operationId: token
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenInput'
+        required: true
+      responses:
+        '200':
+          description: Created token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPayload'
+  /releases/latest:
+    get:
+      tags:
+      - instance
+      operationId: latest_release
+      responses:
+        '200':
+          description: Latest release
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Release'
+components:
+  schemas:
+    AssistantCompletionInput:
+      type: object
+      required:
+      - model
+      - messages
+      properties:
+        messages:
+          type: array
+          items:
+            type: object
+            required:
+            - role
+            - content
+            properties:
+              content:
+                type: string
+              role:
+                type: string
+        model:
+          type: string
+    AssistantCompletionPayload:
+      type: object
+      required:
+      - model
+      - messages
+      - usage
+      properties:
+        messages:
+          type: array
+          items:
+            type: object
+            required:
+            - role
+            - content
+            properties:
+              content:
+                type: string
+              role:
+                type: string
+        model:
+          type: string
+        usage:
+          type: object
+          required:
+          - balance
+          properties:
+            balance:
+              type: integer
+              format: int64
+    AssistantModelsPayload:
+      type: object
+      required:
+      - models
+      properties:
+        models:
+          type: array
+          items:
+            type: object
+            required:
+            - id
+            - name
+            - token_credit
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              token_credit:
+                type: integer
+                format: int64
+    AssistantUsagePayload:
+      type: object
+      required:
+      - balance
+      properties:
+        balance:
+          type: integer
+          format: int64
+    DeviceAuthorizeInput:
+      type: object
+      required:
+      - client_id
+      - client_secret
+      - scope
+      properties:
+        client_id:
+          type: string
+        client_secret:
+          type: string
+        scope:
+          type: string
+    DeviceAuthorizePayload:
+      type: object
+      required:
+      - device_code
+      - user_code
+      - verification_uri
+      - verification_uri_complete
+      - expires_in
+      - interval
+      properties:
+        device_code:
+          type: string
+        expires_in:
+          type: integer
+          format: int64
+          minimum: 0
+        interval:
+          type: integer
+          format: int64
+          minimum: 0
+        user_code:
+          type: string
+        verification_uri:
+          type: string
+        verification_uri_complete:
+          type: string
+    InstanceOwnerPayload:
+      type: object
+      required:
+      - id
+      - kind
+      properties:
+        id:
+          type: string
+        kind:
+          type: string
+    RegisterClientInput:
+      type: object
+      required:
+      - scope
+      - grant_types
+      properties:
+        grant_types:
+          type: array
+          items:
+            type: string
+        scope:
+          type: string
+    RegisterClientPayload:
+      type: object
+      required:
+      - client_id
+      - client_secret
+      - client_id_issued_at
+      - client_secret_expires_at
+      - grant_types
+      - scope
+      - token_endpoint_auth_method
+      properties:
+        client_id:
+          type: string
+        client_id_issued_at:
+          type: integer
+          format: int64
+        client_secret:
+          type: string
+        client_secret_expires_at:
+          type: integer
+          format: int64
+        grant_types:
+          type: array
+          items:
+            type: string
+        scope:
+          type: string
+        token_endpoint_auth_method:
+          type: string
+    Release:
+      type: object
+      required:
+      - id
+      - version
+      - links
+      - released_at
+      properties:
+        id:
+          type: string
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReleaseLink'
+        released_at:
+          type: string
+        version:
+          type: string
+    ReleaseLink:
+      type: object
+      required:
+      - display
+      - platform
+      - kind
+      - link
+      properties:
+        display:
+          type: string
+        kind:
+          type: string
+        link:
+          type: string
+        platform:
+          type: string
+    TokenInput:
+      oneOf:
+      - type: object
+        title: TokenInputDeviceCode
+        required:
+        - device_code
+        - client_id
+        - client_secret
+        - grant_type
+        properties:
+          client_id:
+            type: string
+          client_secret:
+            type: string
+          device_code:
+            type: string
+          grant_type:
+            type: string
+            enum:
+            - urn:ietf:params:oauth:grant-type:device_code
+      - type: object
+        title: TokenInputRefreshToken
+        required:
+        - refresh_token
+        - client_id
+        - client_secret
+        - grant_type
+        properties:
+          client_id:
+            type: string
+          client_secret:
+            type: string
+          grant_type:
+            type: string
+            enum:
+            - refresh_token
+          refresh_token:
+            type: string
+      - type: object
+        title: TokenInputClientCredentials
+        required:
+        - client_id
+        - client_secret
+        - grant_type
+        properties:
+          client_id:
+            type: string
+          client_secret:
+            type: string
+          grant_type:
+            type: string
+            enum:
+            - client_credentials
+      discriminator:
+        propertyName: grant_type
+    TokenPayload:
+      type: object
+      required:
+      - access_token
+      - token_type
+      - expires_in
+      - scope
+      properties:
+        access_token:
+          type: string
+        expires_in:
+          type: integer
+          format: int64
+          minimum: 0
+        refresh_token:
+          type: string
+        scope:
+          type: string
+        token_type:
+          type: string
+    UpdateClientInput:
+      type: object
+      required:
+      - client_id
+      - client_secret
+      - scope
+      - grant_types
+      properties:
+        client_id:
+          type: string
+        client_secret:
+          type: string
+        grant_types:
+          type: array
+          items:
+            type: string
+        scope:
+          type: string
+    UpdateClientPayload:
+      type: object
+      required:
+      - client_id
+      - client_secret
+      - client_id_issued_at
+      - client_secret_expires_at
+      - grant_types
+      - scope
+      - token_endpoint_auth_method
+      properties:
+        client_id:
+          type: string
+        client_id_issued_at:
+          type: integer
+          format: int64
+        client_secret:
+          type: string
+        client_secret_expires_at:
+          type: integer
+          format: int64
+        grant_types:
+          type: array
+          items:
+            type: string
+        scope:
+          type: string
+        token_endpoint_auth_method:
+          type: string
+    UserProfilePayload:
+      type: object
+      required:
+      - id
+      - identity
+      - subscription
+      properties:
+        id:
+          type: string
+        identity:
+          type: object
+          required:
+          - name
+          - email
+          properties:
+            email:
+              type: string
+            name:
+              type: string
+        subscription:
+          type: object
+          required:
+          - plan
+          - entitlements
+          properties:
+            entitlements:
+              type: array
+              items:
+                type: object
+                required:
+                - name
+                properties:
+                  name:
+                    type: string
+            plan:
+              type: object
+              required:
+              - name
+              properties:
+                name:
+                  type: string
+    UserSessionPayload:
+      type: object
+      required:
+      - id
+      - client_id
+      - user_id
+      - scopes
+      - expires_at
+      - created_at
+      properties:
+        client_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        id:
+          type: string
+        scopes:
+          type: array
+          items:
+            type: string
+        user_id:
+          type: string
