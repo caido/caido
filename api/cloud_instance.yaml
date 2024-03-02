@@ -17,6 +17,8 @@ paths:
     post:
       tags:
       - instance
+      summary: Calls the LLM model using the provided chat data messages and waits for the result
+      description: Calls the LLM model using the provided chat data messages and waits for the result
       operationId: complete
       requestBody:
         description: ''
@@ -36,6 +38,8 @@ paths:
     get:
       tags:
       - instance
+      summary: Instance retrives the list of available LLM models
+      description: Instance retrives the list of available LLM models
       operationId: get_models
       responses:
         '200':
@@ -48,6 +52,8 @@ paths:
     get:
       tags:
       - instance
+      summary: Instance retrieves the usage of assistant credits for the user
+      description: Instance retrieves the usage of assistant credits for the user
       operationId: get_usage
       responses:
         '200':
@@ -60,8 +66,8 @@ paths:
     get:
       tags:
       - instance
-      summary: Instance will retrieve its owner for access control using this endpoint
-      description: Instance will retrieve its owner for access control using this endpoint
+      summary: Instance will retrieve its owner for access control
+      description: Instance will retrieve its owner for access control
       operationId: get_owner
       responses:
         '200':
@@ -74,6 +80,8 @@ paths:
     get:
       tags:
       - instance
+      summary: Instance retrieves the user profile, refreshed every hour unless offline
+      description: Instance retrieves the user profile, refreshed every hour unless offline
       operationId: get_profile
       responses:
         '200':
@@ -86,6 +94,8 @@ paths:
     get:
       tags:
       - instance
+      summary: Instance retrieves the user session, refreshed every hour unless offline
+      description: Instance retrieves the user session, refreshed every hour unless offline
       operationId: get_session
       responses:
         '200':
@@ -98,6 +108,8 @@ paths:
     post:
       tags:
       - instance
+      summary: Instance revokes the user session on logout
+      description: Instance revokes the user session on logout
       operationId: revoke_session
       responses:
         '200':
@@ -106,6 +118,8 @@ paths:
     post:
       tags:
       - instance
+      summary: Instance starts the OAuth2 device authorization flow
+      description: Instance starts the OAuth2 device authorization flow
       operationId: device_authorize
       requestBody:
         content:
@@ -124,6 +138,8 @@ paths:
     post:
       tags:
       - instance
+      summary: Instance registers itself as an OAuth2 client during the first startup
+      description: Instance registers itself as an OAuth2 client during the first startup
       operationId: register_client
       requestBody:
         content:
@@ -142,6 +158,8 @@ paths:
     put:
       tags:
       - instance
+      summary: Instance updates its OAuth2 client when needed (e.g. to request new scopes)
+      description: Instance updates its OAuth2 client when needed (e.g. to request new scopes)
       operationId: update_client
       parameters:
       - name: id
@@ -166,6 +184,8 @@ paths:
     post:
       tags:
       - instance
+      summary: Instance requests OAuth2 tokens for itself or a user
+      description: Instance requests OAuth2 tokens for itself or a user
       operationId: token
       requestBody:
         content:
@@ -184,6 +204,8 @@ paths:
     get:
       tags:
       - instance
+      summary: Instance retrieves the latest release links once at startup and every 24h
+      description: Instance retrieves the latest release links once at startup and every 24h
       operationId: latest_release
       responses:
         '200':
