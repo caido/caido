@@ -663,10 +663,11 @@ type CreateTamperRuleCollectionPayload {
 	collection: TamperRuleCollection
 }
 
-union CreateTamperRuleError = InvalidRegexUserError | OtherUserError
+union CreateTamperRuleError = InvalidRegexUserError | InvalidHTTPQLUserError | OtherUserError
 
 input CreateTamperRuleInput {
 	collectionId: ID!
+	condition: HTTPQL
 	isEnabled: Boolean!
 	isRegex: Boolean!
 	matchTerm: String!
@@ -761,6 +762,11 @@ type CreatedDataExportTaskPayload {
 
 type CreatedFilterPresetPayload {
 	filterEdge: FilterPresetEdge!
+}
+
+type CreatedFindingPayload {
+	findingEdge(order: FindingOrderInput): FindingEdge!
+	snapshot: Snapshot!
 }
 
 type CreatedInterceptEntryPayload {
@@ -937,6 +943,10 @@ type DeleteFilterPresetPayload {
 	deletedId: ID
 }
 
+type DeleteFindingsPayload {
+	deletedIds: [ID!]
+}
+
 type DeleteHostedFilePayload {
 	deletedId: ID
 }
@@ -1041,6 +1051,11 @@ type DeletedFilterPresetPayload {
 	deletedFilterId: ID!
 }
 
+type DeletedFindingsPayload {
+	deletedFindingIds: [ID!]!
+	snapshot: Snapshot!
+}
+
 type DeletedHostedFilePayload {
 	deletedHostedFileId: ID!
 }
@@ -1103,6 +1118,10 @@ type DuplicateAutomateSessionPayload {
 
 type EnableTamperRulePayload {
 	rule: TamperRule
+}
+
+input FilterClauseFindingInput {
+	reporter: String
 }
 
 input FilterClauseInterceptEntryInput {
@@ -1192,6 +1211,62 @@ type FilterPresetEdge {
 	node: FilterPreset!
 }
 
+type Finding {
+	createdAt: Timestamp!
+	description: String
+	host: String!
+	id: ID!
+	path: String!
+	reporter: String!
+	request: Request!
+	title: String!
+}
+
+type FindingConnection {
+	count: Count!
+	"""
+	A list of edges.
+	"""
+	edges: [FindingEdge!]!
+	"""
+	A list of nodes.
+	"""
+	nodes: [Finding!]!
+	"""
+	Information to aid in pagination.
+	"""
+	pageInfo: PageInfo!
+	snapshot: Snapshot!
+}
+
+"""
+An edge in a connection.
+"""
+type FindingEdge {
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
+	"""
+	The item at the end of the edge
+	"""
+	node: Finding!
+}
+
+enum FindingOrderBy {
+	CREATED_AT
+	HOST
+	ID
+	PATH
+	REPORTER
+	TITLE
+}
+
+input FindingOrderInput {
+	by: FindingOrderBy!
+	ordering: Ordering!
+}
+
 type FinishedBackupTaskCancelled {
 	taskId: ID!
 }
@@ -1251,6 +1326,8 @@ type GlobalConfig {
 	address: String!
 	onboarding: OnboardingState!
 }
+
+scalar HTTPQL
 
 type HostedFile {
 	createdAt: DateTime!
@@ -1428,6 +1505,11 @@ type InvalidGlobTermsUserError implements UserError {
 	terms: [String!]!
 }
 
+type InvalidHTTPQLUserError implements UserError {
+	code: String!
+	query: String!
+}
+
 type InvalidRegexUserError implements UserError {
 	code: String!
 	term: String!
@@ -1478,6 +1560,7 @@ type MutationRoot {
 	deleteBrowser: DeleteBrowserPayload!
 	deleteDataExport(id: ID!): DeleteDataExportPayload!
 	deleteFilterPreset(id: ID!): DeleteFilterPresetPayload!
+	deleteFindings(ids: [ID!]!): DeleteFindingsPayload!
 	deleteHostedFile(id: ID!): DeleteHostedFilePayload!
 	deleteInterceptEntries(filter: FilterClauseInterceptEntryInput, scopeId: ID): DeleteInterceptEntriesPayload!
 	deleteInterceptEntry(id: ID!): DeleteInterceptEntryPayload!
@@ -1537,6 +1620,7 @@ type MutationRoot {
 	updateAutomateSession(id: ID!, input: UpdateAutomateSessionInput!): UpdateAutomateSessionPayload!
 	updateBrowser: UpdateBrowserPayload!
 	updateFilterPreset(id: ID!, input: UpdateFilterPresetInput!): UpdateFilterPresetPayload!
+	updateRequestMetadata(id: ID!, input: UpdateRequestMetadataInput!): UpdateRequestMetadataPayload!
 	updateScope(id: ID!, input: UpdateScopeInput!): UpdateScopePayload!
 	updateTamperRule(id: ID!, input: UpdateTamperRuleInput!): UpdateTamperRulePayload!
 	updateUpstreamProxy(id: ID!, input: UpdateUpstreamProxyInput!): UpdateUpstreamProxyPayload!
@@ -1654,6 +1738,10 @@ type QueryRoot {
 	dataExports: [DataExport!]!
 	filterPreset(id: ID!): FilterPreset
 	filterPresets: [FilterPreset!]!
+	finding(id: ID!): Finding
+	findingReporters: [String!]!
+	findings(after: String, before: String, first: Int, last: Int, filter: FilterClauseFindingInput, order: FindingOrderInput): FindingConnection!
+	findingsByOffset(limit: Int, offset: Int, filter: FilterClauseFindingInput, order: FindingOrderInput): FindingConnection!
 	globalConfig: GlobalConfig!
 	hostedFiles: [HostedFile!]!
 	interceptEntries(after: String, before: String, first: Int, last: Int, filter: FilterClauseInterceptEntryInput, order: InterceptEntryOrderInput, scopeId: ID): InterceptEntryConnection!
@@ -2411,6 +2499,7 @@ type SubscriptionRoot {
 	createdDataExport: CreatedDataExportPayload!
 	createdDataExportTask: CreatedDataExportTaskPayload!
 	createdFilterPreset: CreatedFilterPresetPayload!
+	createdFinding: CreatedFindingPayload!
 	createdInterceptEntry(filter: FilterClauseInterceptEntryInput, scopeId: ID): CreatedInterceptEntryPayload!
 	createdInterceptMessage: CreatedInterceptMessagePayload!
 	createdProject: CreatedProjectPayload!
@@ -2433,6 +2522,7 @@ type SubscriptionRoot {
 	deletedDataExport: DeletedDataExportPayload!
 	deletedDataExportTask: DeletedDataExportTaskPayload!
 	deletedFilterPreset: DeletedFilterPresetPayload!
+	deletedFindings: DeletedFindingsPayload!
 	deletedHostedFile: DeletedHostedFilePayload!
 	deletedInterceptEntry: DeletedInterceptEntryPayload!
 	deletedInterceptMessage: DeletedInterceptMessagePayload!
@@ -2482,6 +2572,7 @@ type SubscriptionRoot {
 
 type TamperRule {
 	collection: TamperRuleCollection!
+	condition: HTTPQL
 	id: ID!
 	isEnabled: Boolean!
 	isRegex: Boolean!
@@ -2633,6 +2724,15 @@ type UpdateFilterPresetPayload {
 	filter: FilterPreset
 }
 
+input UpdateRequestMetadataInput {
+	color: String
+}
+
+type UpdateRequestMetadataPayload {
+	metadata: RequestMetadata
+	snapshot: Snapshot
+}
+
 union UpdateScopeError = InvalidGlobTermsUserError | OtherUserError
 
 input UpdateScopeInput {
@@ -2646,9 +2746,10 @@ type UpdateScopePayload {
 	scope: Scope
 }
 
-union UpdateTamperRuleError = UnknownIdUserError | InvalidRegexUserError | OtherUserError
+union UpdateTamperRuleError = UnknownIdUserError | InvalidRegexUserError | InvalidHTTPQLUserError | OtherUserError
 
 input UpdateTamperRuleInput {
+	condition: HTTPQL
 	isEnabled: Boolean!
 	isRegex: Boolean!
 	matchTerm: String!
@@ -2780,7 +2881,7 @@ type UpdatedReplayTaskPayload {
 
 type UpdatedRequestMetadataPayload {
 	metadata: RequestMetadata!
-	requestIds: [ID!]!
+	requestId: ID!
 	snapshot: Snapshot!
 }
 
