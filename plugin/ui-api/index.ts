@@ -1,17 +1,19 @@
+import type { Commands } from "./commands";
+import type { Menu } from "./menu";
 import type { Scopes } from "./scopes";
 import type { UI } from "./ui";
+
+export type { CommandContext } from "./commands";
 
 export type API = {
   ui: UI;
   scopes: Scopes;
+  commands: Commands;
+  menu: Menu;
 
   navigation: {
     goTo: (path: string) => void;
     addPage: (path: string, options: PageOptions) => void;
-  };
-
-  commands: {
-    register: (id: string, options: CommandOptions) => void;
   };
 
   shortcuts: {
@@ -29,12 +31,6 @@ export type API = {
       options?: SidebarItemOptions,
     ) => SidebarItem;
   };
-};
-
-type CommandOptions = {
-  name: string;
-  run: () => void;
-  group?: string;
 };
 
 type PageOptions = {
