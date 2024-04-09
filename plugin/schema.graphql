@@ -140,20 +140,8 @@ input AutomateConcurrencySettingInput {
 	workers: Int!
 }
 
-type AutomateConnectionInfo {
-	host: String!
-	isTls: Boolean!
-	port: Int!
-}
-
-input AutomateConnectionInfoInput {
-	host: String!
-	isTls: Boolean!
-	port: Int!
-}
-
 type AutomateEntry {
-	connection: AutomateConnectionInfo!
+	connection: ConnectionInfo!
 	createdAt: Timestamp!
 	id: ID!
 	name: String!
@@ -344,7 +332,7 @@ input AutomateRetryOnFailureSettingInput {
 }
 
 type AutomateSession {
-	connection: AutomateConnectionInfo!
+	connection: ConnectionInfo!
 	createdAt: Timestamp!
 	entries: [AutomateEntry!]!
 	id: ID!
@@ -563,6 +551,18 @@ type CancelRestoreBackupTaskPayload {
 	error: CancelRestoreBackupTaskError
 }
 
+type ConnectionInfo {
+	host: String!
+	isTls: Boolean!
+	port: Port!
+}
+
+input ConnectionInfoInput {
+	host: String!
+	isTLS: Boolean!
+	port: Port!
+}
+
 type Count {
 	snapshot: Snapshot!
 	value: Int!
@@ -581,7 +581,7 @@ type CreateAssistantSessionPayload {
 }
 
 input CreateAutomateSessionInput {
-	requestId: ID
+	requestSource: RequestSourceInput
 }
 
 type CreateAutomateSessionPayload {
@@ -629,7 +629,7 @@ type CreateReplaySessionCollectionPayload {
 
 input CreateReplaySessionInput {
 	collectionId: ID
-	requestId: ID
+	requestSource: RequestSourceInput
 }
 
 type CreateReplaySessionPayload {
@@ -688,7 +688,7 @@ input CreateUpstreamProxyInput {
 	enabled: Boolean!
 	host: String!
 	kind: UpstreamProxyKind!
-	port: Int!
+	port: Port!
 }
 
 type CreateUpstreamProxyPayload {
@@ -699,6 +699,7 @@ union CreateWorkflowError = WorkflowUserError | OtherUserError
 
 input CreateWorkflowInput {
 	definition: JsonObject!
+	global: Boolean!
 }
 
 type CreateWorkflowPayload {
@@ -831,7 +832,6 @@ type CreatedTamperRulePayload {
 }
 
 type CreatedWorkflowPayload {
-	snapshot: Snapshot!
 	workflowEdge: WorkflowEdge!
 }
 
@@ -910,12 +910,12 @@ type DeleteAssistantSessionPayload {
 	deletedId: ID
 }
 
-union DeleteAutomateEntryError = TaskInProgressUserError | OtherUserError
-
-type DeleteAutomateEntryPayload {
-	deletedId: ID
-	userError: DeleteAutomateEntryError
+type DeleteAutomateEntriesPayload {
+	deletedIds: [ID!]!
+	errors: [DeleteAutomateEntryError!]!
 }
+
+union DeleteAutomateEntryError = TaskInProgressUserError | OtherUserError
 
 type DeleteAutomateSessionPayload {
 	deletedId: ID
@@ -983,8 +983,8 @@ type DeleteReplaySessionCollectionPayload {
 	deletedId: ID
 }
 
-type DeleteReplaySessionPayload {
-	deletedId: ID
+type DeleteReplaySessionsPayload {
+	deletedIds: [ID!]
 }
 
 type DeleteScopePayload {
@@ -1101,7 +1101,6 @@ type DeletedTamperRulePayload {
 
 type DeletedWorkflowPayload {
 	deletedWorkflowId: ID!
-	snapshot: Snapshot!
 }
 
 type DisableTamperRulePayload {
@@ -1325,6 +1324,13 @@ input ForwardInterceptResponseMessageInput {
 type GlobalConfig {
 	address: String!
 	onboarding: OnboardingState!
+}
+
+union GlobalizeWorkflowError = UnknownIdUserError | WorkflowUserError | OtherUserError
+
+type GlobalizeWorkflowPayload {
+	error: GlobalizeWorkflowError
+	workflow: Workflow
 }
 
 scalar HTTPQL
@@ -1554,7 +1560,7 @@ type MutationRoot {
 	createUpstreamProxy(input: CreateUpstreamProxyInput!): CreateUpstreamProxyPayload!
 	createWorkflow(input: CreateWorkflowInput!): CreateWorkflowPayload!
 	deleteAssistantSession(id: ID!): DeleteAssistantSessionPayload!
-	deleteAutomateEntry(id: ID!): DeleteAutomateEntryPayload!
+	deleteAutomateEntries(ids: [ID!]!): DeleteAutomateEntriesPayload!
 	deleteAutomateSession(id: ID!): DeleteAutomateSessionPayload!
 	deleteBackup(id: ID!): DeleteBackupPayload!
 	deleteBrowser: DeleteBrowserPayload!
@@ -1565,8 +1571,8 @@ type MutationRoot {
 	deleteInterceptEntries(filter: FilterClauseInterceptEntryInput, scopeId: ID): DeleteInterceptEntriesPayload!
 	deleteInterceptEntry(id: ID!): DeleteInterceptEntryPayload!
 	deleteProject(id: ID!): DeleteProjectPayload!
-	deleteReplaySession(id: ID!): DeleteReplaySessionPayload!
 	deleteReplaySessionCollection(id: ID!): DeleteReplaySessionCollectionPayload!
+	deleteReplaySessions(ids: [ID!]!): DeleteReplaySessionsPayload!
 	deleteScope(id: ID!): DeleteScopePayload!
 	deleteTamperRule(id: ID!): DeleteTamperRulePayload!
 	deleteTamperRuleCollection(id: ID!): DeleteTamperRuleCollectionPayload!
@@ -1577,6 +1583,7 @@ type MutationRoot {
 	duplicateAutomateSession(id: ID!): DuplicateAutomateSessionPayload!
 	enableTamperRule(id: ID!): EnableTamperRulePayload!
 	forwardInterceptMessage(id: ID!, input: ForwardInterceptMessageInput): ForwardInterceptMessagePayload!
+	globalizeWorkflow(id: ID!): GlobalizeWorkflowPayload!
 	installBrowser: InstallBrowserPayload!
 	logout: LogoutPayload!
 	moveReplaySession(id: ID!, collectionId: ID!): MoveReplaySessionPayload!
@@ -1690,6 +1697,8 @@ type PermissionDeniedUserError implements UserError {
 	code: String!
 	reason: PermissionDeniedErrorReason!
 }
+
+scalar Port
 
 type Project {
 	backups: [Backup!]!
@@ -2059,7 +2068,7 @@ type Request {
 	metadata: RequestMetadata!
 	method: String!
 	path: String!
-	port: Int!
+	port: Port!
 	query: String!
 	raw: Blob!
 	response: Response
@@ -2107,6 +2116,11 @@ input RequestOptions {
 	withUpdatedContentLength: Boolean!
 }
 
+input RequestRawInput {
+	connectionInfo: ConnectionInfoInput!
+	raw: Blob!
+}
+
 enum RequestResponseOrderBy {
 	CREATED_AT
 	FILE_EXTENSION
@@ -2124,6 +2138,11 @@ enum RequestResponseOrderBy {
 input RequestResponseOrderInput {
 	by: RequestResponseOrderBy!
 	ordering: Ordering!
+}
+
+input RequestSourceInput @oneOf {
+	id: ID
+	raw: RequestRawInput
 }
 
 type Response {
@@ -2301,7 +2320,7 @@ union SitemapEntryMetadata = SitemapEntryMetadataDomain
 
 type SitemapEntryMetadataDomain {
 	isTls: Boolean!
-	port: Int!
+	port: Port!
 }
 
 scalar Snapshot
@@ -2310,6 +2329,7 @@ enum Source {
 	AUTOMATE
 	INTERCEPT
 	REPLAY
+	WORKFLOW
 }
 
 union StartAuthenticationFlowError = AuthenticationUserError | OtherUserError
@@ -2340,7 +2360,7 @@ union StartExportRequestsTaskPayloadError = PermissionDeniedUserError | OtherUse
 input StartReplayTaskInput {
 	host: String!
 	options: RequestOptions!
-	port: Int!
+	port: Port!
 	raw: Blob!
 }
 
@@ -2367,7 +2387,7 @@ type Stream {
 	id: ID!
 	isTls: Boolean!
 	path: String!
-	port: Int!
+	port: Port!
 	protocol: StreamProtocol!
 	source: Source!
 }
@@ -2667,7 +2687,7 @@ input TestUpstreamProxyInput {
 	auth: UpstreamProxyAuthInput
 	host: String!
 	kind: UpstreamProxyKind!
-	port: Int!
+	port: Port!
 }
 
 type TestUpstreamProxyPayload {
@@ -2695,7 +2715,7 @@ type UnsupportedPlatformUserError implements UserError {
 }
 
 input UpdateAutomateSessionInput {
-	connection: AutomateConnectionInfoInput!
+	connection: ConnectionInfoInput!
 	raw: Blob!
 	settings: AutomateSettingsInput!
 }
@@ -2770,7 +2790,7 @@ input UpdateUpstreamProxyInput {
 	enabled: Boolean!
 	host: String!
 	kind: UpstreamProxyKind!
-	port: Int!
+	port: Port!
 }
 
 type UpdateUpstreamProxyPayload {
@@ -2922,7 +2942,6 @@ type UpdatedViewerSettingsPayload {
 }
 
 type UpdatedWorkflowPayload {
-	snapshot: Snapshot!
 	workflowEdge: WorkflowEdge!
 }
 
@@ -2953,7 +2972,7 @@ type UpstreamProxy {
 	host: String!
 	id: ID!
 	kind: UpstreamProxyKind!
-	port: Int!
+	port: Port!
 	rank: Rank!
 }
 
@@ -3025,11 +3044,14 @@ type UserSubscriptionPlan {
 }
 
 type Workflow {
+	createdAt: DateTime!
 	definition: JsonObject!
 	enabled: Boolean!
+	global: Boolean!
 	id: ID!
 	kind: WorkflowKind!
 	name: String!
+	updatedAt: DateTime!
 }
 
 """
