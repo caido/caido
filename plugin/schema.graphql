@@ -374,7 +374,7 @@ type AutomateSessionEdge {
 
 type AutomateSettings {
 	closeConnection: Boolean!
-	concurrency: AutomateConcurrencySetting
+	concurrency: AutomateConcurrencySetting!
 	payloads: [AutomatePayload!]!
 	placeholders: [AutomatePlaceholder!]!
 	retryOnFailure: AutomateRetryOnFailureSetting!
@@ -384,7 +384,7 @@ type AutomateSettings {
 
 input AutomateSettingsInput {
 	closeConnection: Boolean!
-	concurrency: AutomateConcurrencySettingInput
+	concurrency: AutomateConcurrencySettingInput!
 	payloads: [AutomatePayloadInput!]!
 	placeholders: [AutomatePlaceholderInput!]!
 	retryOnFailure: AutomateRetryOnFailureSettingInput!
@@ -551,6 +551,13 @@ type CancelRestoreBackupTaskPayload {
 	error: CancelRestoreBackupTaskError
 }
 
+union CancelTaskError = UnknownIdUserError | OtherUserError
+
+type CancelTaskPayload {
+	cancelledId: ID
+	error: CancelTaskError
+}
+
 type ConnectionInfo {
 	host: String!
 	isTls: Boolean!
@@ -599,7 +606,7 @@ union CreateFilterPresetError = NameTakenUserError | AliasTakenUserError | Permi
 
 input CreateFilterPresetInput {
 	alias: Alias!
-	clause: JSON!
+	clause: HTTPQL!
 	name: String!
 }
 
@@ -1191,7 +1198,7 @@ enum FilterOperatorString {
 
 type FilterPreset {
 	alias: Alias!
-	clause: JSON!
+	clause: HTTPQL!
 	id: ID!
 	name: String!
 }
@@ -1299,6 +1306,11 @@ union FinishedRestoreBackupTaskPayload = FinishedRestoreBackupTaskSuccess | Fini
 
 type FinishedRestoreBackupTaskSuccess {
 	task: RestoreBackupTask!
+}
+
+type FinishedTaskPayload {
+	error: UserError
+	task: Task!
 }
 
 
@@ -1546,6 +1558,7 @@ type MutationRoot {
 	cancelDataExportTask(id: ID!): CancelDataExportTaskPayload!
 	cancelReplayTask(id: ID!): CancelReplayTaskPayload!
 	cancelRestoreBackupTask(id: ID!): CancelRestoreBackupTaskPayload!
+	cancelTask(id: ID!): CancelTaskPayload!
 	createAssistantSession(input: CreateAssistantSessionInput!): CreateAssistantSessionPayload!
 	createAutomateSession(input: CreateAutomateSessionInput!): CreateAutomateSessionPayload!
 	createBackup(projectId: ID!): CreateBackupPayload!
@@ -1610,6 +1623,7 @@ type MutationRoot {
 	restoreBackup(input: RestoreBackupInput!): RestoreBackupPayload!
 	resumeAutomateTask(id: ID!): ResumeAutomateTaskPayload!
 	resumeIntercept: ResumeInterceptPayload!
+	runActiveWorkflow(id: ID!, input: RunActiveWorkflowInput!): RunActiveWorkflowPayload!
 	runConvertWorkflow(id: ID!, input: Blob!): RunConvertWorkflowPayload!
 	selectProject(id: ID!): SelectProjectPayload!
 	sendAssistantMessage(sessionId: ID!, message: String): SendAssistantMessagePayload!
@@ -1784,6 +1798,7 @@ type QueryRoot {
 	tamperRule(id: ID!): TamperRule
 	tamperRuleCollection(id: ID!): TamperRuleCollection
 	tamperRuleCollections(after: String, before: String, first: Int, last: Int): TamperRuleCollectionConnection!
+	tasks: [Task!]!
 	upstreamProxies: [UpstreamProxy!]!
 	viewer: User!
 	workflow(id: ID!): Workflow
@@ -2109,6 +2124,7 @@ type RequestEdge {
 
 type RequestMetadata {
 	color: String
+	id: ID!
 }
 
 input RequestOptions {
@@ -2188,6 +2204,17 @@ type ResumeInterceptPayload {
 	status: InterceptStatus!
 }
 
+union RunActiveWorkflowError = UnknownIdUserError | PermissionDeniedUserError | OtherUserError
+
+input RunActiveWorkflowInput {
+	requestId: ID!
+}
+
+type RunActiveWorkflowPayload {
+	error: RunActiveWorkflowError
+	task: WorkflowTask
+}
+
 union RunConvertWorkflowError = WorkflowUserError | PermissionDeniedUserError | OtherUserError
 
 type RunConvertWorkflowPayload {
@@ -2197,6 +2224,7 @@ type RunConvertWorkflowPayload {
 
 type Runtime {
 	availableUpdate: Release
+	logs: Uri!
 	platform: String!
 	version: String!
 }
@@ -2380,6 +2408,10 @@ type StartedRestoreBackupTaskPayload {
 	task: RestoreBackupTask!
 }
 
+type StartedTaskPayload {
+	task: Task!
+}
+
 type Stream {
 	createdAt: Timestamp!
 	direction: StreamDirection!
@@ -2556,10 +2588,12 @@ type SubscriptionRoot {
 	finishedBackupTask: FinishedBackupTaskPayload!
 	finishedDeleteInterceptEntriesTask: FinishedDeleteInterceptEntriesTaskPayload!
 	finishedRestoreBackupTask: FinishedRestoreBackupTaskPayload!
+	finishedTask: FinishedTaskPayload!
 	installedBrowser: UploadedBrowserPayload!
 	startedBackupTask: StartedBackupTaskPayload!
 	startedDeleteInterceptEntriesTask: StartedDeleteInterceptEntriesTaskPayload!
 	startedRestoreBackupTask: StartedRestoreBackupTaskPayload!
+	startedTask: StartedTaskPayload!
 	updatedAssistantMessageTask: UpdatedAssistantMessageTaskPayload!
 	updatedAssistantSession: UpdatedAssistantSessionPayload!
 	updatedAutomateEntry: UpdatedAutomateEntryPayload!
@@ -2663,6 +2697,11 @@ enum TamperStrategy {
 	RESPONSE_HEADER
 }
 
+interface Task {
+	createdAt: DateTime!
+	id: ID!
+}
+
 type TaskInProgressUserError implements UserError {
 	code: String!
 	taskId: ID!
@@ -2735,7 +2774,7 @@ union UpdateFilterPresetError = NameTakenUserError | AliasTakenUserError | Other
 
 input UpdateFilterPresetInput {
 	alias: Alias!
-	clause: JSON!
+	clause: HTTPQL!
 	name: String!
 }
 
@@ -2901,7 +2940,6 @@ type UpdatedReplayTaskPayload {
 
 type UpdatedRequestMetadataPayload {
 	metadata: RequestMetadata!
-	requestId: ID!
 	snapshot: Snapshot!
 }
 
@@ -3076,12 +3114,19 @@ enum WorkflowErrorReason {
 }
 
 enum WorkflowKind {
+	ACTIVE
 	CONVERT
 	PASSIVE
 }
 
 type WorkflowNodeDefinition {
 	raw: JsonObject!
+}
+
+type WorkflowTask implements Task {
+	createdAt: DateTime!
+	id: ID!
+	workflow: Workflow!
 }
 
 type WorkflowUserError implements UserError {
