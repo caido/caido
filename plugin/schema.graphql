@@ -247,28 +247,18 @@ input AutomateNullPayloadInput {
 }
 
 type AutomatePayload {
-	kind: AutomatePayloadKind!
 	options: AutomatePayloadOptions!
 	preprocessors: [AutomatePreprocessor!]!
-	urlEncode: AutomateUrlEncodeOptions!
 }
 
 input AutomatePayloadInput {
-	kind: AutomatePayloadKind!
 	options: AutomatePayloadOptionsInput!
 	preprocessors: [AutomatePreprocessorInput!]!
-	urlEncode: AutomateUrlEncodeOptionsInput!
-}
-
-enum AutomatePayloadKind {
-	HOSTED_FILE
-	NULL
-	SIMPLE_LIST
 }
 
 union AutomatePayloadOptions = AutomateSimpleListPayload | AutomateHostedFilePayload | AutomateNullPayload
 
-input AutomatePayloadOptionsInput {
+input AutomatePayloadOptionsInput @oneOf {
 	hostedFile: AutomateHostedFilePayloadInput
 	null: AutomateNullPayloadInput
 	simpleList: AutomateSimpleListPayloadInput
@@ -300,25 +290,20 @@ input AutomatePrefixPreprocessorInput {
 }
 
 type AutomatePreprocessor {
-	kind: AutomatePreprocessorKind!
 	options: AutomatePreprocessorOptions!
 }
 
 input AutomatePreprocessorInput {
-	kind: AutomatePreprocessorKind!
 	options: AutomatePreprocessorOptionsInput!
 }
 
-enum AutomatePreprocessorKind {
-	PREFIX
-	SUFFIX
-}
+union AutomatePreprocessorOptions = AutomatePrefixPreprocessor | AutomateSuffixPreprocessor | AutomateUrlEncodePreprocessor | AutomateWorkflowPreprocessor
 
-union AutomatePreprocessorOptions = AutomatePrefixPreprocessor | AutomateSuffixPreprocessor
-
-input AutomatePreprocessorOptionsInput {
+input AutomatePreprocessorOptionsInput @oneOf {
 	prefix: AutomatePrefixPreprocessorInput
 	suffix: AutomateSuffixPreprocessorInput
+	urlEncode: AutomateUrlEncodePreprocessorInput
+	workflow: AutomateWorkflowPreprocessorInput
 }
 
 type AutomateRetryOnFailureSetting {
@@ -455,16 +440,22 @@ type AutomateTaskUserError implements UserError {
 	reason: AutomateTaskErrorReason!
 }
 
-type AutomateUrlEncodeOptions {
+type AutomateUrlEncodePreprocessor {
 	charset: String
-	enabled: Boolean!
 	nonAscii: Boolean!
 }
 
-input AutomateUrlEncodeOptionsInput {
+input AutomateUrlEncodePreprocessorInput {
 	charset: String
-	enabled: Boolean!
 	nonAscii: Boolean!
+}
+
+type AutomateWorkflowPreprocessor {
+	id: ID!
+}
+
+input AutomateWorkflowPreprocessorInput {
+	id: ID!
 }
 
 type Backup {
@@ -787,6 +778,10 @@ type CreatedInterceptMessagePayload {
 	snapshot: Snapshot!
 }
 
+type CreatedPluginPackagePayload {
+	package: PluginPackage!
+}
+
 type CreatedProjectPayload {
 	project: Project!
 }
@@ -1075,6 +1070,10 @@ type DeletedInterceptEntryPayload {
 type DeletedInterceptMessagePayload {
 	deletedMessageId: ID!
 	snapshot: Snapshot!
+}
+
+type DeletedPluginPackagePayload {
+	deletedPackageId: ID!
 }
 
 type DeletedProjectPayload {
@@ -1366,6 +1365,17 @@ type InstallBrowserPayload {
 	error: InstallBrowserError
 }
 
+union InstallPluginPackageError = PluginUserError | OtherUserError
+
+input InstallPluginPackageInput {
+	source: PluginPackageSource!
+}
+
+type InstallPluginPackagePayload {
+	error: InstallPluginPackageError
+	package: PluginPackage
+}
+
 
 type InterceptEntry {
 	id: ID!
@@ -1540,6 +1550,13 @@ scalar JSON
 
 scalar JsonObject
 
+union LocalizeWorkflowError = UnknownIdUserError | WorkflowUserError | OtherUserError
+
+type LocalizeWorkflowPayload {
+	error: LocalizeWorkflowError
+	workflow: Workflow
+}
+
 type LogoutPayload {
 	success: Boolean!
 }
@@ -1598,6 +1615,8 @@ type MutationRoot {
 	forwardInterceptMessage(id: ID!, input: ForwardInterceptMessageInput): ForwardInterceptMessagePayload!
 	globalizeWorkflow(id: ID!): GlobalizeWorkflowPayload!
 	installBrowser: InstallBrowserPayload!
+	installPluginPackage(input: InstallPluginPackageInput!): InstallPluginPackagePayload!
+	localizeWorkflow(id: ID!): LocalizeWorkflowPayload!
 	logout: LogoutPayload!
 	moveReplaySession(id: ID!, collectionId: ID!): MoveReplaySessionPayload!
 	moveTamperRule(id: ID!, collectionId: ID!): MoveTamperRulePayload!
@@ -1631,13 +1650,16 @@ type MutationRoot {
 	setGlobalConfigOnboarding(input: SetConfigOnboardingInput!): SetConfigOnboardingPayload!
 	setGlobalConfigPort(input: Int!): SetConfigPortPayload!
 	setInterceptOptions(input: InterceptOptionsInput!): SetInterceptOptionsPayload!
+	setPluginData(id: ID!, data: JSON!): SetPluginDataPayload!
 	startAuthenticationFlow: StartAuthenticationFlowPayload!
 	startAutomateTask(automateSessionId: ID!): StartAutomateTaskPayload!
 	startExportRequestsTask(input: StartExportRequestsTaskInput!): StartExportRequestsTaskPayload!
 	startReplayTask(replaySessionId: ID!, input: StartReplayTaskInput!): StartReplayTaskPayload!
 	testTamperRule(input: TestTamperRuleInput!): TestTamperRulePayload!
 	testUpstreamProxy(input: TestUpstreamProxyInput!): TestUpstreamProxyPayload!
+	togglePlugin(id: ID!, enabled: Boolean!): TogglePluginPayload!
 	toggleWorkflow(id: ID!, enabled: Boolean!): ToggleWorkflowPayload!
+	uninstallPluginPackage(id: ID!): UninstallPluginPackagePayload!
 	updateAutomateSession(id: ID!, input: UpdateAutomateSessionInput!): UpdateAutomateSessionPayload!
 	updateBrowser: UpdateBrowserPayload!
 	updateFilterPreset(id: ID!, input: UpdateFilterPresetInput!): UpdateFilterPresetPayload!
@@ -1712,6 +1734,58 @@ type PermissionDeniedUserError implements UserError {
 	reason: PermissionDeniedErrorReason!
 }
 
+interface Plugin {
+	enabled: Boolean!
+	id: ID!
+	manifestId: ID!
+	name: String
+	package: PluginPackage!
+}
+
+type PluginAuthor {
+	email: String
+	name: String
+	url: String
+}
+
+enum PluginErrorReason {
+	ALREADY_INSTALLED
+	INVALID_MANIFEST
+	INVALID_PACKAGE
+	MISSING_FILE
+}
+
+type PluginFrontend implements Plugin {
+	data: JSON
+	enabled: Boolean!
+	entrypoint: String
+	id: ID!
+	manifestId: ID!
+	name: String
+	package: PluginPackage!
+	style: String
+}
+
+type PluginPackage {
+	author: PluginAuthor
+	description: String
+	id: ID!
+	installedAt: DateTime!
+	manifestId: ID!
+	name: String
+	plugins: [Plugin!]!
+	version: String!
+}
+
+input PluginPackageSource @oneOf {
+	file: Upload
+}
+
+type PluginUserError implements UserError {
+	code: String!
+	reason: PluginErrorReason!
+}
+
 scalar Port
 
 type Project {
@@ -1773,6 +1847,7 @@ type QueryRoot {
 	interceptMessages(after: String, before: String, first: Int, last: Int, kind: InterceptKind!): InterceptMessageConnection!
 	interceptOptions: InterceptOptions!
 	interceptStatus: InterceptStatus!
+	pluginPackages: [PluginPackage!]!
 	projects: [Project!]!
 	replayEntry(id: ID!): ReplayEntry
 	replaySession(id: ID!): ReplaySession
@@ -2289,6 +2364,13 @@ type SetInterceptOptionsPayload {
 	options: InterceptOptions!
 }
 
+union SetPluginDataError = UnknownIdUserError | PluginUserError | OtherUserError
+
+type SetPluginDataPayload {
+	error: SetPluginDataError
+	plugin: Plugin
+}
+
 enum SitemapDescendantsDepth {
 	ALL
 	DIRECT
@@ -2554,6 +2636,7 @@ type SubscriptionRoot {
 	createdFinding: CreatedFindingPayload!
 	createdInterceptEntry(filter: FilterClauseInterceptEntryInput, scopeId: ID): CreatedInterceptEntryPayload!
 	createdInterceptMessage: CreatedInterceptMessagePayload!
+	createdPluginPackage: CreatedPluginPackagePayload!
 	createdProject: CreatedProjectPayload!
 	createdReplaySession: CreatedReplaySessionPayload!
 	createdReplaySessionCollection: CreatedReplaySessionCollectionPayload!
@@ -2578,6 +2661,7 @@ type SubscriptionRoot {
 	deletedHostedFile: DeletedHostedFilePayload!
 	deletedInterceptEntry: DeletedInterceptEntryPayload!
 	deletedInterceptMessage: DeletedInterceptMessagePayload!
+	deletedPluginPackage: DeletedPluginPackagePayload!
 	deletedProject: DeletedProjectPayload!
 	deletedReplaySession: DeletedReplaySessionPayload!
 	deletedReplaySessionCollection: DeletedReplaySessionCollectionPayload!
@@ -2608,6 +2692,7 @@ type SubscriptionRoot {
 	updatedInterceptEntry(filter: FilterClauseInterceptEntryInput, scopeId: ID): UpdatedInterceptEntryPayload!
 	updatedInterceptOptions: UpdatedInterceptOptionsPayload!
 	updatedInterceptStatus: UpdatedInterceptStatusPayload!
+	updatedPlugin: UpdatedPluginPayload!
 	updatedProject: UpdatedProjectPayload!
 	updatedReplaySession: UpdatedReplaySessionPayload!
 	updatedReplaySessionCollection: UpdatedReplaySessionCollectionPayload!
@@ -2735,6 +2820,13 @@ type TestUpstreamProxyPayload {
 
 scalar Timestamp
 
+union TogglePluginError = UnknownIdUserError | PluginUserError | OtherUserError
+
+type TogglePluginPayload {
+	error: TogglePluginError
+	plugin: Plugin
+}
+
 union ToggleWorkflowError = UnknownIdUserError | OtherUserError
 
 type ToggleWorkflowPayload {
@@ -2743,6 +2835,13 @@ type ToggleWorkflowPayload {
 }
 
 scalar Token
+
+union UninstallPluginPackageError = UnknownIdUserError | OtherUserError
+
+type UninstallPluginPackagePayload {
+	deletedId: ID
+	error: UninstallPluginPackageError
+}
 
 type UnknownIdUserError implements UserError {
 	code: String!
@@ -2753,6 +2852,8 @@ type UnsupportedPlatformUserError implements UserError {
 	code: String!
 }
 
+union UpdateAutomateSessionError = PermissionDeniedUserError | OtherUserError
+
 input UpdateAutomateSessionInput {
 	connection: ConnectionInfoInput!
 	raw: Blob!
@@ -2760,6 +2861,7 @@ input UpdateAutomateSessionInput {
 }
 
 type UpdateAutomateSessionPayload {
+	error: UpdateAutomateSessionError
 	session: AutomateSession
 }
 
@@ -2919,6 +3021,10 @@ type UpdatedInterceptStatusPayload {
 	status: InterceptStatus!
 }
 
+type UpdatedPluginPayload {
+	plugin: Plugin!
+}
+
 type UpdatedProjectPayload {
 	project: Project!
 }
@@ -3045,6 +3151,7 @@ scalar Url
 type User {
 	assistantUsage: AssistantUsage!
 	id: ID!
+	plugins: [PluginFrontend!]!
 	profile: UserProfile!
 	settings: UserSettings
 }
