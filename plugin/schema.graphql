@@ -146,8 +146,8 @@ type AutomateEntry {
 	id: ID!
 	name: String!
 	raw: Blob!
-	requests(after: String, before: String, first: Int, last: Int, order: AutomateEntryRequestOrderInput): AutomateEntryRequestConnection!
-	requestsByOffset(limit: Int, offset: Int, order: AutomateEntryRequestOrderInput): AutomateEntryRequestConnection!
+	requests(after: String, before: String, first: Int, last: Int, filter: HTTPQL, order: AutomateEntryRequestOrderInput): AutomateEntryRequestConnection!
+	requestsByOffset(limit: Int, offset: Int, filter: HTTPQL, order: AutomateEntryRequestOrderInput): AutomateEntryRequestConnection!
 	session: AutomateSession!
 	settings: AutomateSettings!
 }
@@ -246,6 +246,14 @@ input AutomateNullPayloadInput {
 	quantity: Int!
 }
 
+type AutomateNumberPayload {
+	range: Range!
+}
+
+input AutomateNumberPayloadInput {
+	range: RangeInput!
+}
+
 type AutomatePayload {
 	options: AutomatePayloadOptions!
 	preprocessors: [AutomatePreprocessor!]!
@@ -256,11 +264,12 @@ input AutomatePayloadInput {
 	preprocessors: [AutomatePreprocessorInput!]!
 }
 
-union AutomatePayloadOptions = AutomateSimpleListPayload | AutomateHostedFilePayload | AutomateNullPayload
+union AutomatePayloadOptions = AutomateSimpleListPayload | AutomateHostedFilePayload | AutomateNullPayload | AutomateNumberPayload
 
 input AutomatePayloadOptionsInput @oneOf {
 	hostedFile: AutomateHostedFilePayloadInput
 	null: AutomateNullPayloadInput
+	number: AutomateNumberPayloadInput
 	simpleList: AutomateSimpleListPayloadInput
 }
 
@@ -530,10 +539,6 @@ type CancelDataExportTaskPayload {
 }
 
 union CancelExportTaskError = UnknownIdUserError | OtherUserError
-
-type CancelReplayTaskPayload {
-	cancelledId: ID!
-}
 
 union CancelRestoreBackupTaskError = UnknownIdUserError | OtherUserError
 
@@ -1129,72 +1134,6 @@ input FilterClauseFindingInput {
 	reporter: String
 }
 
-input FilterClauseInterceptEntryInput {
-	AND: [FilterClauseInterceptEntryInput!]
-	OR: [FilterClauseInterceptEntryInput!]
-	preset: FilterExprPresetInput
-	request: FilterClauseRequestInput
-	response: FilterClauseResponseInput
-}
-
-input FilterClauseRequestInput {
-	fileExtension: FilterExprStringInput
-	host: FilterExprStringInput
-	method: FilterExprStringInput
-	path: FilterExprStringInput
-	port: FilterExprIntInput
-	query: FilterExprStringInput
-	raw: FilterExprStringInput
-}
-
-input FilterClauseRequestResponseInput {
-	AND: [FilterClauseRequestResponseInput!]
-	OR: [FilterClauseRequestResponseInput!]
-	preset: FilterExprPresetInput
-	request: FilterClauseRequestInput
-	response: FilterClauseResponseInput
-	source: FilterExprStringInput
-}
-
-input FilterClauseResponseInput {
-	raw: FilterExprStringInput
-	statusCode: FilterExprIntInput
-}
-
-input FilterExprIntInput {
-	operator: FilterOperatorInt!
-	value: Int
-}
-
-input FilterExprPresetInput {
-	id: ID!
-}
-
-input FilterExprStringInput {
-	operator: FilterOperatorString!
-	value: String
-}
-
-enum FilterOperatorInt {
-	EQ
-	GT
-	GTE
-	LT
-	LTE
-	NE
-}
-
-enum FilterOperatorString {
-	CONT
-	EQ
-	LIKE
-	NCONT
-	NE
-	NLIKE
-	NREGEX
-	REGEX
-}
-
 type FilterPreset {
 	alias: Alias!
 	clause: HTTPQL!
@@ -1573,7 +1512,6 @@ type MutationRoot {
 	cancelAutomateTask(id: ID!): CancelAutomateTaskPayload!
 	cancelBackupTask(id: ID!): CancelBackupTaskPayload!
 	cancelDataExportTask(id: ID!): CancelDataExportTaskPayload!
-	cancelReplayTask(id: ID!): CancelReplayTaskPayload!
 	cancelRestoreBackupTask(id: ID!): CancelRestoreBackupTaskPayload!
 	cancelTask(id: ID!): CancelTaskPayload!
 	createAssistantSession(input: CreateAssistantSessionInput!): CreateAssistantSessionPayload!
@@ -1598,7 +1536,7 @@ type MutationRoot {
 	deleteFilterPreset(id: ID!): DeleteFilterPresetPayload!
 	deleteFindings(ids: [ID!]!): DeleteFindingsPayload!
 	deleteHostedFile(id: ID!): DeleteHostedFilePayload!
-	deleteInterceptEntries(filter: FilterClauseInterceptEntryInput, scopeId: ID): DeleteInterceptEntriesPayload!
+	deleteInterceptEntries(filter: HTTPQL, scopeId: ID): DeleteInterceptEntriesPayload!
 	deleteInterceptEntry(id: ID!): DeleteInterceptEntryPayload!
 	deleteProject(id: ID!): DeleteProjectPayload!
 	deleteReplaySessionCollection(id: ID!): DeleteReplaySessionCollectionPayload!
@@ -1654,7 +1592,7 @@ type MutationRoot {
 	startAuthenticationFlow: StartAuthenticationFlowPayload!
 	startAutomateTask(automateSessionId: ID!): StartAutomateTaskPayload!
 	startExportRequestsTask(input: StartExportRequestsTaskInput!): StartExportRequestsTaskPayload!
-	startReplayTask(replaySessionId: ID!, input: StartReplayTaskInput!): StartReplayTaskPayload!
+	startReplayTask(sessionId: ID!, input: StartReplayTaskInput!): StartReplayTaskPayload!
 	testTamperRule(input: TestTamperRuleInput!): TestTamperRulePayload!
 	testUpstreamProxy(input: TestUpstreamProxyInput!): TestUpstreamProxyPayload!
 	togglePlugin(id: ID!, enabled: Boolean!): TogglePluginPayload!
@@ -1841,8 +1779,8 @@ type QueryRoot {
 	findingsByOffset(limit: Int, offset: Int, filter: FilterClauseFindingInput, order: FindingOrderInput): FindingConnection!
 	globalConfig: GlobalConfig!
 	hostedFiles: [HostedFile!]!
-	interceptEntries(after: String, before: String, first: Int, last: Int, filter: FilterClauseInterceptEntryInput, order: InterceptEntryOrderInput, scopeId: ID): InterceptEntryConnection!
-	interceptEntriesByOffset(limit: Int, offset: Int, filter: FilterClauseInterceptEntryInput, order: InterceptEntryOrderInput, scopeId: ID): InterceptEntryConnection!
+	interceptEntries(after: String, before: String, first: Int, last: Int, filter: HTTPQL, order: InterceptEntryOrderInput, scopeId: ID): InterceptEntryConnection!
+	interceptEntriesByOffset(limit: Int, offset: Int, filter: HTTPQL, order: InterceptEntryOrderInput, scopeId: ID): InterceptEntryConnection!
 	interceptEntry(id: ID!): InterceptEntry
 	interceptMessages(after: String, before: String, first: Int, last: Int, kind: InterceptKind!): InterceptMessageConnection!
 	interceptOptions: InterceptOptions!
@@ -1854,8 +1792,8 @@ type QueryRoot {
 	replaySessionCollections(after: String, before: String, first: Int, last: Int): ReplaySessionCollectionConnection!
 	replaySessions(after: String, before: String, first: Int, last: Int): ReplaySessionConnection!
 	request(id: ID!): Request
-	requests(after: String, before: String, first: Int, last: Int, filter: FilterClauseRequestResponseInput, order: RequestResponseOrderInput, scopeId: ID): RequestConnection!
-	requestsByOffset(limit: Int, offset: Int, filter: FilterClauseRequestResponseInput, order: RequestResponseOrderInput, scopeId: ID): RequestConnection!
+	requests(after: String, before: String, first: Int, last: Int, filter: HTTPQL, order: RequestResponseOrderInput, scopeId: ID): RequestConnection!
+	requestsByOffset(limit: Int, offset: Int, filter: HTTPQL, order: RequestResponseOrderInput, scopeId: ID): RequestConnection!
 	response(id: ID!): Response
 	restoreBackupTasks: [RestoreBackupTask!]!
 	runtime: Runtime!
@@ -1879,6 +1817,16 @@ type QueryRoot {
 	workflow(id: ID!): Workflow
 	workflowNodeDefinitions: [WorkflowNodeDefinition!]!
 	workflows: [Workflow!]!
+}
+
+type Range {
+	end: Int!
+	start: Int!
+}
+
+input RangeInput {
+	end: Int!
+	start: Int!
 }
 
 scalar Rank
@@ -2003,10 +1951,14 @@ type RenderRequestPayload {
 }
 
 type ReplayEntry {
+	connection: ConnectionInfo!
+	createdAt: Timestamp!
 	error: String
 	id: ID!
-	request: Request!
-	sessionId: ID!
+	raw: Blob!
+	request: Request
+	session: ReplaySession!
+	settings: ReplayEntrySettings!
 }
 
 type ReplayEntryConnection {
@@ -2047,6 +1999,52 @@ enum ReplayEntryOrderBy {
 input ReplayEntryOrderInput {
 	by: ReplayEntryOrderBy!
 	ordering: Ordering!
+}
+
+type ReplayEntrySettings {
+	placeholders: [ReplayPlaceholder!]!
+}
+
+input ReplayEntrySettingsInput {
+	placeholders: [ReplayPlaceholderInput!]!
+	updateContentLength: Boolean!
+}
+
+type ReplayPlaceholder {
+	inputRange: Range!
+	outputRange: Range!
+	preprocessors: [ReplayPreprocessor!]!
+}
+
+input ReplayPlaceholderInput {
+	inputRange: RangeInput!
+	outputRange: RangeInput!
+	preprocessors: [ReplayPreprocessorInput!]!
+}
+
+type ReplayPrefixPreprocessor {
+	value: String!
+}
+
+input ReplayPrefixPreprocessorInput {
+	value: String!
+}
+
+type ReplayPreprocessor {
+	options: ReplayPreprocessorOptions!
+}
+
+input ReplayPreprocessorInput {
+	options: ReplayPreprocessorOptionsInput!
+}
+
+union ReplayPreprocessorOptions = ReplayPrefixPreprocessor | ReplaySuffixPreprocessor | ReplayUrlEncodePreprocessor | ReplayWorkflowPreprocessor
+
+input ReplayPreprocessorOptionsInput @oneOf {
+	prefix: ReplayPrefixPreprocessorInput
+	suffix: ReplaySuffixPreprocessorInput
+	urlEncode: ReplayUrlEncodePreprocessorInput
+	workflow: ReplayWorkflowPreprocessorInput
 }
 
 type ReplaySession {
@@ -2125,24 +2123,36 @@ type ReplaySessionEdge {
 	node: ReplaySession!
 }
 
-type ReplayTask {
-	error: String
-	id: ID!
-	replayEntry: ReplayEntry
+type ReplaySuffixPreprocessor {
+	value: String!
 }
 
-"""
-An edge in a connection.
-"""
-type ReplayTaskEdge {
-	"""
-	A cursor for use in pagination
-	"""
-	cursor: String!
-	"""
-	The item at the end of the edge
-	"""
-	node: ReplayTask!
+input ReplaySuffixPreprocessorInput {
+	value: String!
+}
+
+type ReplayTask implements Task {
+	createdAt: DateTime!
+	id: ID!
+	replayEntry: ReplayEntry!
+}
+
+type ReplayUrlEncodePreprocessor {
+	charset: String
+	nonAscii: Boolean!
+}
+
+input ReplayUrlEncodePreprocessorInput {
+	charset: String
+	nonAscii: Boolean!
+}
+
+type ReplayWorkflowPreprocessor {
+	id: ID!
+}
+
+input ReplayWorkflowPreprocessorInput {
+	id: ID!
 }
 
 type Request {
@@ -2200,11 +2210,6 @@ type RequestEdge {
 type RequestMetadata {
 	color: String
 	id: ID!
-}
-
-input RequestOptions {
-	withTls: Boolean!
-	withUpdatedContentLength: Boolean!
 }
 
 input RequestRawInput {
@@ -2454,7 +2459,7 @@ type StartAutomateTaskPayload {
 }
 
 input StartExportRequestsTaskInput {
-	filter: FilterClauseRequestResponseInput
+	filter: HTTPQL
 	format: DataExportFormat!
 	scopeId: ID
 	settings: DataExportSettings!
@@ -2467,15 +2472,17 @@ type StartExportRequestsTaskPayload {
 
 union StartExportRequestsTaskPayloadError = PermissionDeniedUserError | OtherUserError
 
+union StartReplayTaskError = TaskInProgressUserError | OtherUserError
+
 input StartReplayTaskInput {
-	host: String!
-	options: RequestOptions!
-	port: Port!
+	connection: ConnectionInfoInput!
 	raw: Blob!
+	settings: ReplayEntrySettingsInput!
 }
 
 type StartReplayTaskPayload {
-	task: ReplayTask!
+	error: StartReplayTaskError
+	task: ReplayTask
 }
 
 type StartedBackupTaskPayload {
@@ -2626,7 +2633,7 @@ type SubscriptionRoot {
 	createdAssistantSession: CreatedAssistantSessionPayload!
 	createdAuthenticationToken(requestId: ID!): CreatedAuthenticationTokenPayload!
 	createdAutomateEntry: CreatedAutomateEntryPayload!
-	createdAutomateEntryRequest: CreatedAutomateEntryRequestPayload!
+	createdAutomateEntryRequest(filter: HTTPQL): CreatedAutomateEntryRequestPayload!
 	createdAutomateSession: CreatedAutomateSessionPayload!
 	createdAutomateTask: CreatedAutomateTaskPayload!
 	createdBackup: CreatedBackupPayload!
@@ -2634,13 +2641,13 @@ type SubscriptionRoot {
 	createdDataExportTask: CreatedDataExportTaskPayload!
 	createdFilterPreset: CreatedFilterPresetPayload!
 	createdFinding: CreatedFindingPayload!
-	createdInterceptEntry(filter: FilterClauseInterceptEntryInput, scopeId: ID): CreatedInterceptEntryPayload!
+	createdInterceptEntry(filter: HTTPQL, scopeId: ID): CreatedInterceptEntryPayload!
 	createdInterceptMessage: CreatedInterceptMessagePayload!
 	createdPluginPackage: CreatedPluginPackagePayload!
 	createdProject: CreatedProjectPayload!
 	createdReplaySession: CreatedReplaySessionPayload!
 	createdReplaySessionCollection: CreatedReplaySessionCollectionPayload!
-	createdRequest(filter: FilterClauseRequestResponseInput, scopeId: ID): CreatedRequestPayload!
+	createdRequest(filter: HTTPQL, scopeId: ID): CreatedRequestPayload!
 	createdScope: CreatedScopePayload!
 	createdSitemapEntry(scopeId: ID): CreatedSitemapEntryPayload!
 	createdStream(protocol: StreamProtocol!, scopeId: ID): CreatedStreamPayload!
@@ -2689,15 +2696,14 @@ type SubscriptionRoot {
 	updatedDeleteInterceptEntriesTask: UpdatedDeleteInterceptEntriesTaskPayload!
 	updatedFilterPreset: UpdatedFilterPresetPayload!
 	updatedHostedFile: UpdatedHostedFilePayload!
-	updatedInterceptEntry(filter: FilterClauseInterceptEntryInput, scopeId: ID): UpdatedInterceptEntryPayload!
+	updatedInterceptEntry(filter: HTTPQL, scopeId: ID): UpdatedInterceptEntryPayload!
 	updatedInterceptOptions: UpdatedInterceptOptionsPayload!
 	updatedInterceptStatus: UpdatedInterceptStatusPayload!
 	updatedPlugin: UpdatedPluginPayload!
 	updatedProject: UpdatedProjectPayload!
 	updatedReplaySession: UpdatedReplaySessionPayload!
 	updatedReplaySessionCollection: UpdatedReplaySessionCollectionPayload!
-	updatedReplayTask: UpdatedReplayTaskPayload!
-	updatedRequest(filter: FilterClauseRequestResponseInput, scopeId: ID): UpdatedRequestPayload!
+	updatedRequest(filter: HTTPQL, scopeId: ID): UpdatedRequestPayload!
 	updatedRequestMetadata: UpdatedRequestMetadataPayload!
 	updatedScope: UpdatedScopePayload!
 	updatedSitemapEntry(scopeId: ID): UpdatedSitemapEntryPayload!
@@ -3036,11 +3042,6 @@ type UpdatedReplaySessionCollectionPayload {
 
 type UpdatedReplaySessionPayload {
 	sessionEdge: ReplaySessionEdge!
-	snapshot: Snapshot!
-}
-
-type UpdatedReplayTaskPayload {
-	replayTaskEdge: ReplayTaskEdge!
 	snapshot: Snapshot!
 }
 
