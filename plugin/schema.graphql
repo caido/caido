@@ -611,6 +611,20 @@ type CreateFilterPresetPayload {
 	filter: FilterPreset
 }
 
+union CreateFindingError = UnknownIdUserError | OtherUserError
+
+input CreateFindingInput {
+	dedupeKey: String
+	description: String
+	reporter: String!
+	title: String!
+}
+
+type CreateFindingPayload {
+	error: CreateFindingError
+	finding: Finding
+}
+
 input CreateProjectInput {
 	name: String!
 }
@@ -1157,6 +1171,7 @@ type FilterPresetEdge {
 
 type Finding {
 	createdAt: Timestamp!
+	dedupeKey: String
 	description: String
 	host: String!
 	id: ID!
@@ -1518,6 +1533,7 @@ type MutationRoot {
 	createAutomateSession(input: CreateAutomateSessionInput!): CreateAutomateSessionPayload!
 	createBackup(projectId: ID!): CreateBackupPayload!
 	createFilterPreset(input: CreateFilterPresetInput!): CreateFilterPresetPayload!
+	createFinding(requestId: ID!, input: CreateFindingInput!): CreateFindingPayload!
 	createProject(input: CreateProjectInput!): CreateProjectPayload!
 	createReplaySession(input: CreateReplaySessionInput!): CreateReplaySessionPayload!
 	createReplaySessionCollection(input: CreateReplaySessionCollectionInput!): CreateReplaySessionCollectionPayload!
@@ -1686,14 +1702,26 @@ type PluginAuthor {
 	url: String
 }
 
+type PluginBackend implements Plugin {
+	enabled: Boolean!
+	id: ID!
+	manifestId: ID!
+	name: String
+	package: PluginPackage!
+	runtime: PluginRuntime!
+	state: PluginState!
+}
+
 enum PluginErrorReason {
 	ALREADY_INSTALLED
 	INVALID_MANIFEST
+	INVALID_OPERATION
 	INVALID_PACKAGE
 	MISSING_FILE
 }
 
 type PluginFrontend implements Plugin {
+	backend: PluginBackend
 	data: JSON
 	enabled: Boolean!
 	entrypoint: String
@@ -1717,6 +1745,15 @@ type PluginPackage {
 
 input PluginPackageSource @oneOf {
 	file: Upload
+}
+
+enum PluginRuntime {
+	JAVASCRIPT
+}
+
+type PluginState {
+	error: String
+	running: Boolean!
 }
 
 type PluginUserError implements UserError {
