@@ -214,6 +214,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Release'
+  /store/community/packages:
+    get:
+      tags:
+      - instance
+      operationId: packages
+      responses:
+        '200':
+          description: List all the community packages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PackagesPayload'
 components:
   schemas:
     AssistantCompletionInput:
@@ -343,6 +355,55 @@ components:
           type: string
         kind:
           type: string
+    PackagePayload:
+      type: object
+      required:
+      - id
+      - license
+      - version
+      - public_key
+      - repository
+      - archive
+      - signature
+      properties:
+        archive:
+          type: string
+        author:
+          allOf:
+          - type: object
+            properties:
+              email:
+                type: string
+                nullable: true
+              name:
+                type: string
+                nullable: true
+              url:
+                type: string
+                nullable: true
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        id:
+          type: string
+        license:
+          type: string
+        name:
+          type: string
+          nullable: true
+        public_key:
+          type: string
+        repository:
+          type: string
+        signature:
+          type: string
+        version:
+          type: string
+    PackagesPayload:
+      type: array
+      items:
+        $ref: '#/components/schemas/PackagePayload'
     RegisterClientInput:
       type: object
       required:
