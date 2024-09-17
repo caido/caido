@@ -797,6 +797,12 @@ type CreatedInterceptMessagePayload {
 	snapshot: Snapshot!
 }
 
+type CreatedPluginEventPayload {
+	eventArgs: [JsonRaw!]!
+	eventName: String!
+	pluginId: ID!
+}
+
 type CreatedPluginPackagePayload {
 	package: PluginPackage!
 }
@@ -1319,7 +1325,7 @@ type InstallBrowserPayload {
 	error: InstallBrowserError
 }
 
-union InstallPluginPackageError = PluginUserError | OtherUserError
+union InstallPluginPackageError = PluginUserError | StoreUserError | OtherUserError
 
 input InstallPluginPackageInput {
 	source: PluginPackageSource!
@@ -1503,6 +1509,8 @@ A scalar that can represent any JSON value.
 scalar JSON
 
 scalar JsonObject
+
+scalar JsonRaw
 
 union LocalizeWorkflowError = UnknownIdUserError | WorkflowUserError | OtherUserError
 
@@ -1745,6 +1753,7 @@ type PluginPackage {
 
 input PluginPackageSource @oneOf {
 	file: Upload
+	manifestId: ID
 }
 
 enum PluginRuntime {
@@ -1839,6 +1848,7 @@ type QueryRoot {
 	sitemapDescendantEntries(parentId: ID!, depth: SitemapDescendantsDepth!): SitemapEntryConnection!
 	sitemapEntry(id: ID!): SitemapEntry
 	sitemapRootEntries(scopeId: ID): SitemapEntryConnection!
+	store: Store!
 	stream(id: ID!): Stream
 	streamWsMessage(id: ID!): StreamWsMessage
 	streamWsMessages(after: String, before: String, first: Int, last: Int, order: StreamWsMessageOrderInput, streamId: ID!): StreamWsMessageConnection!
@@ -2509,7 +2519,7 @@ type StartExportRequestsTaskPayload {
 
 union StartExportRequestsTaskPayloadError = PermissionDeniedUserError | OtherUserError
 
-union StartReplayTaskError = TaskInProgressUserError | OtherUserError
+union StartReplayTaskError = TaskInProgressUserError | PermissionDeniedUserError | OtherUserError
 
 input StartReplayTaskInput {
 	connection: ConnectionInfoInput!
@@ -2536,6 +2546,39 @@ type StartedRestoreBackupTaskPayload {
 
 type StartedTaskPayload {
 	task: Task!
+}
+
+type Store {
+	pluginPackages: [StorePluginPackage!]!
+}
+
+enum StoreErrorReason {
+	FILE_UNAVAILABLE
+	INVALID_PUBLIC_KEY
+	INVALID_SIGNATURE
+	PACKAGE_TOO_LARGE
+	PACKAGE_UNKNOWN
+}
+
+type StorePluginPackage {
+	author: StorePluginPackageAuthor
+	description: String
+	license: String!
+	manifestId: ID!
+	name: String
+	repository: Url!
+	version: Version!
+}
+
+type StorePluginPackageAuthor {
+	email: String
+	name: String
+	url: String
+}
+
+type StoreUserError implements UserError {
+	code: String!
+	reason: StoreErrorReason!
 }
 
 type Stream {
@@ -2680,6 +2723,7 @@ type SubscriptionRoot {
 	createdFinding: CreatedFindingPayload!
 	createdInterceptEntry(filter: HTTPQL, scopeId: ID): CreatedInterceptEntryPayload!
 	createdInterceptMessage: CreatedInterceptMessagePayload!
+	createdPluginEvent: CreatedPluginEventPayload!
 	createdPluginPackage: CreatedPluginPackagePayload!
 	createdProject: CreatedProjectPayload!
 	createdReplaySession: CreatedReplaySessionPayload!
@@ -2737,6 +2781,7 @@ type SubscriptionRoot {
 	updatedInterceptOptions: UpdatedInterceptOptionsPayload!
 	updatedInterceptStatus: UpdatedInterceptStatusPayload!
 	updatedPlugin: UpdatedPluginPayload!
+	updatedPluginPackage: UpdatedPluginPackagePayload!
 	updatedProject: UpdatedProjectPayload!
 	updatedReplaySession: UpdatedReplaySessionPayload!
 	updatedReplaySessionCollection: UpdatedReplaySessionCollectionPayload!
@@ -3064,6 +3109,10 @@ type UpdatedInterceptStatusPayload {
 	status: InterceptStatus!
 }
 
+type UpdatedPluginPackagePayload {
+	package: PluginPackage!
+}
+
 type UpdatedPluginPayload {
 	plugin: Plugin!
 }
@@ -3225,6 +3274,8 @@ type UserSubscription {
 type UserSubscriptionPlan {
 	name: String!
 }
+
+scalar Version
 
 type Workflow {
 	createdAt: DateTime!
