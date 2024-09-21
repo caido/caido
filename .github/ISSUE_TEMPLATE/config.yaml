@@ -1,0 +1,4 @@
+contact_links:
+  - name: Plugin
+    url: https://github.com/caido-community/ideas/issues/new?assignees=&labels=&projects=&template=idea.md&title=
+    about: Share an idea for a plugin
