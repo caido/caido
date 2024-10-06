@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim
+FROM debian:bookworm-20240904-slim
 
 RUN \
   apt-get update && \
