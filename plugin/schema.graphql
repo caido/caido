@@ -698,18 +698,29 @@ type CreateTamperRulePayload {
 	rule: TamperRule
 }
 
-input CreateUpstreamProxyInput {
+input CreateUpstreamProxyHttpInput {
 	allowlist: [String!]!
 	auth: UpstreamProxyAuthInput
+	connection: ConnectionInfoInput!
 	denylist: [String!]!
 	enabled: Boolean!
-	host: String!
-	kind: UpstreamProxyKind!
-	port: Port!
 }
 
-type CreateUpstreamProxyPayload {
-	proxy: UpstreamProxy
+type CreateUpstreamProxyHttpPayload {
+	proxy: UpstreamProxyHttp
+}
+
+input CreateUpstreamProxySocksInput {
+	allowlist: [String!]!
+	auth: UpstreamProxyAuthInput
+	connection: ConnectionInfoInput!
+	denylist: [String!]!
+	enabled: Boolean!
+	includeDns: Boolean!
+}
+
+type CreateUpstreamProxySocksPayload {
+	proxy: UpstreamProxySocks
 }
 
 union CreateWorkflowError = WorkflowUserError | OtherUserError
@@ -856,6 +867,14 @@ type CreatedTamperRuleCollectionPayload {
 type CreatedTamperRulePayload {
 	ruleEdge: TamperRuleEdge!
 	snapshot: Snapshot!
+}
+
+type CreatedUpstreamProxyHttpPayload {
+	proxy: UpstreamProxyHttp!
+}
+
+type CreatedUpstreamProxySocksPayload {
+	proxy: UpstreamProxySocks!
 }
 
 type CreatedWorkflowPayload {
@@ -1026,12 +1045,19 @@ type DeleteTamperRulePayload {
 	deletedId: ID
 }
 
-type DeleteUpstreamProxyPayload {
+type DeleteUpstreamProxyHttpPayload {
 	deletedId: ID
 }
 
+type DeleteUpstreamProxySocksPayload {
+	deletedId: ID
+}
+
+union DeleteWorkflowError = UnknownIdUserError | ReadOnlyUserError | OtherUserError
+
 type DeleteWorkflowPayload {
 	deletedId: ID
+	error: DeleteWorkflowError
 }
 
 type DeletedAssistantSessionPayload {
@@ -1128,6 +1154,14 @@ type DeletedTamperRuleCollectionPayload {
 type DeletedTamperRulePayload {
 	deletedRuleId: ID!
 	snapshot: Snapshot!
+}
+
+type DeletedUpstreamProxyHttpPayload {
+	deletedProxyId: ID!
+}
+
+type DeletedUpstreamProxySocksPayload {
+	deletedProxyId: ID!
 }
 
 type DeletedWorkflowPayload {
@@ -1297,7 +1331,7 @@ type GlobalConfig {
 	onboarding: OnboardingState!
 }
 
-union GlobalizeWorkflowError = UnknownIdUserError | WorkflowUserError | OtherUserError
+union GlobalizeWorkflowError = UnknownIdUserError | ReadOnlyUserError | WorkflowUserError | OtherUserError
 
 type GlobalizeWorkflowPayload {
 	error: GlobalizeWorkflowError
@@ -1512,7 +1546,7 @@ scalar JsonObject
 
 scalar JsonRaw
 
-union LocalizeWorkflowError = UnknownIdUserError | WorkflowUserError | OtherUserError
+union LocalizeWorkflowError = UnknownIdUserError | ReadOnlyUserError | WorkflowUserError | OtherUserError
 
 type LocalizeWorkflowPayload {
 	error: LocalizeWorkflowError
@@ -1549,7 +1583,8 @@ type MutationRoot {
 	createSitemapEntries(requestId: ID!): CreateSitemapEntriesPayload!
 	createTamperRule(input: CreateTamperRuleInput!): CreateTamperRulePayload!
 	createTamperRuleCollection(input: CreateTamperRuleCollectionInput!): CreateTamperRuleCollectionPayload!
-	createUpstreamProxy(input: CreateUpstreamProxyInput!): CreateUpstreamProxyPayload!
+	createUpstreamProxyHttp(input: CreateUpstreamProxyHttpInput!): CreateUpstreamProxyHttpPayload!
+	createUpstreamProxySocks(input: CreateUpstreamProxySocksInput!): CreateUpstreamProxySocksPayload!
 	createWorkflow(input: CreateWorkflowInput!): CreateWorkflowPayload!
 	deleteAssistantSession(id: ID!): DeleteAssistantSessionPayload!
 	deleteAutomateEntries(ids: [ID!]!): DeleteAutomateEntriesPayload!
@@ -1568,7 +1603,8 @@ type MutationRoot {
 	deleteScope(id: ID!): DeleteScopePayload!
 	deleteTamperRule(id: ID!): DeleteTamperRulePayload!
 	deleteTamperRuleCollection(id: ID!): DeleteTamperRuleCollectionPayload!
-	deleteUpstreamProxy(id: ID!): DeleteUpstreamProxyPayload!
+	deleteUpstreamProxyHttp(id: ID!): DeleteUpstreamProxyHttpPayload!
+	deleteUpstreamProxySocks(id: ID!): DeleteUpstreamProxySocksPayload!
 	deleteWorkflow(id: ID!): DeleteWorkflowPayload!
 	disableTamperRule(id: ID!): DisableTamperRulePayload!
 	dropInterceptMessage(id: ID!): DropInterceptMessagePayload!
@@ -1585,7 +1621,8 @@ type MutationRoot {
 	pauseAutomateTask(id: ID!): PauseAutomateTaskPayload!
 	pauseIntercept: PauseInterceptPayload!
 	rankTamperRule(id: ID!, input: RankTamperRuleInput!): RankTamperRulePayload!
-	rankUpstreamProxy(id: ID!, input: RankUpstreamProxyInput!): RankUpstreamProxyPayload!
+	rankUpstreamProxyHttp(id: ID!, input: RankUpstreamProxyHttpInput!): RankUpstreamProxyHttpPayload!
+	rankUpstreamProxySocks(id: ID!, input: RankUpstreamProxySocksInput!): RankUpstreamProxySocksPayload!
 	refreshAuthenticationToken(refreshToken: Token!): RefreshAuthenticationTokenPayload!
 	renameAssistantSession(id: ID!, name: String!): RenameAssistantSessionPayload!
 	renameAutomateEntry(id: ID!, name: String!): RenameAutomateEntryPayload!
@@ -1618,8 +1655,11 @@ type MutationRoot {
 	startExportRequestsTask(input: StartExportRequestsTaskInput!): StartExportRequestsTaskPayload!
 	startReplayTask(sessionId: ID!, input: StartReplayTaskInput!): StartReplayTaskPayload!
 	testTamperRule(input: TestTamperRuleInput!): TestTamperRulePayload!
-	testUpstreamProxy(input: TestUpstreamProxyInput!): TestUpstreamProxyPayload!
+	testUpstreamProxyHttp(input: TestUpstreamProxyHttpInput!): TestUpstreamProxyHttpPayload!
+	testUpstreamProxySocks(input: TestUpstreamProxySocksInput!): TestUpstreamProxySocksPayload!
 	togglePlugin(id: ID!, enabled: Boolean!): TogglePluginPayload!
+	toggleUpstreamProxyHttp(id: ID!, enabled: Boolean!): ToggleUpstreamProxyHttpPayload!
+	toggleUpstreamProxySocks(id: ID!, enabled: Boolean!): ToggleUpstreamProxySocksPayload!
 	toggleWorkflow(id: ID!, enabled: Boolean!): ToggleWorkflowPayload!
 	uninstallPluginPackage(id: ID!): UninstallPluginPackagePayload!
 	updateAutomateSession(id: ID!, input: UpdateAutomateSessionInput!): UpdateAutomateSessionPayload!
@@ -1628,7 +1668,8 @@ type MutationRoot {
 	updateRequestMetadata(id: ID!, input: UpdateRequestMetadataInput!): UpdateRequestMetadataPayload!
 	updateScope(id: ID!, input: UpdateScopeInput!): UpdateScopePayload!
 	updateTamperRule(id: ID!, input: UpdateTamperRuleInput!): UpdateTamperRulePayload!
-	updateUpstreamProxy(id: ID!, input: UpdateUpstreamProxyInput!): UpdateUpstreamProxyPayload!
+	updateUpstreamProxyHttp(id: ID!, input: UpdateUpstreamProxyHttpInput!): UpdateUpstreamProxyHttpPayload!
+	updateUpstreamProxySocks(id: ID!, input: UpdateUpstreamProxySocksInput!): UpdateUpstreamProxySocksPayload!
 	updateViewerSettings(input: UpdateViewerSettingsInput!): UpdateViewerSettingsPayload!
 	updateWorkflow(id: ID!, input: UpdateWorkflowInput!): UpdateWorkflowPayload!
 	uploadHostedFile(input: UploadHostedFileInput!): UploadHostedFilePayload!
@@ -1770,6 +1811,15 @@ type PluginUserError implements UserError {
 	reason: PluginErrorReason!
 }
 
+type PluginWorkflow implements Plugin {
+	enabled: Boolean!
+	id: ID!
+	manifestId: ID!
+	name: String
+	package: PluginPackage!
+	workflow: Workflow
+}
+
 scalar Port
 
 type Project {
@@ -1859,7 +1909,8 @@ type QueryRoot {
 	tamperRuleCollection(id: ID!): TamperRuleCollection
 	tamperRuleCollections(after: String, before: String, first: Int, last: Int): TamperRuleCollectionConnection!
 	tasks: [Task!]!
-	upstreamProxies: [UpstreamProxy!]!
+	upstreamProxiesHttp: [UpstreamProxyHttp!]!
+	upstreamProxiesSocks: [UpstreamProxySocks!]!
 	viewer: User!
 	workflow(id: ID!): Workflow
 	workflowNodeDefinitions: [WorkflowNodeDefinition!]!
@@ -1887,13 +1938,26 @@ type RankTamperRulePayload {
 	rule: TamperRule
 }
 
-input RankUpstreamProxyInput {
+input RankUpstreamProxyHttpInput {
 	afterId: ID
 	beforeId: ID
 }
 
-type RankUpstreamProxyPayload {
-	proxy: UpstreamProxy
+type RankUpstreamProxyHttpPayload {
+	proxy: UpstreamProxyHttp
+}
+
+input RankUpstreamProxySocksInput {
+	afterId: ID
+	beforeId: ID
+}
+
+type RankUpstreamProxySocksPayload {
+	proxy: UpstreamProxySocks
+}
+
+type ReadOnlyUserError implements UserError {
+	code: String!
 }
 
 union RefreshAuthenticationTokenError = AuthenticationUserError | OtherUserError
@@ -1966,7 +2030,7 @@ type RenameTamperRulePayload {
 	rule: TamperRule
 }
 
-union RenameWorkflowError = UnknownIdUserError | OtherUserError
+union RenameWorkflowError = UnknownIdUserError | ReadOnlyUserError | OtherUserError
 
 type RenameWorkflowPayload {
 	error: RenameWorkflowError
@@ -2735,6 +2799,8 @@ type SubscriptionRoot {
 	createdStreamWsMessage: CreatedStreamWsMessagePayload!
 	createdTamperRule: CreatedTamperRulePayload!
 	createdTamperRuleCollection: CreatedTamperRuleCollectionPayload!
+	createdUpstreamProxyHttp: CreatedUpstreamProxyHttpPayload!
+	createdUpstreamProxySocks: CreatedUpstreamProxySocksPayload!
 	createdWorkflow: CreatedWorkflowPayload!
 	deletedAssistantSession: DeletedAssistantSessionPayload!
 	deletedAutomateEntry: DeletedAutomateEntryPayload!
@@ -2756,6 +2822,8 @@ type SubscriptionRoot {
 	deletedScope: DeletedScopePayload!
 	deletedTamperRule: DeletedTamperRulePayload!
 	deletedTamperRuleCollection: DeletedTamperRuleCollectionPayload!
+	deletedUpstreamProxyHttp: DeletedUpstreamProxyHttpPayload!
+	deletedUpstreamProxySocks: DeletedUpstreamProxySocksPayload!
 	deletedWorkflow: DeletedWorkflowPayload!
 	finishedBackupTask: FinishedBackupTaskPayload!
 	finishedDeleteInterceptEntriesTask: FinishedDeleteInterceptEntriesTaskPayload!
@@ -2791,6 +2859,8 @@ type SubscriptionRoot {
 	updatedSitemapEntry(scopeId: ID): UpdatedSitemapEntryPayload!
 	updatedTamperRule: UpdatedTamperRulePayload!
 	updatedTamperRuleCollection: UpdatedTamperRuleCollectionPayload!
+	updatedUpstreamProxyHttp: UpdatedUpstreamProxyHttpPayload!
+	updatedUpstreamProxySocks: UpdatedUpstreamProxySocksPayload!
 	updatedViewerAssistantUsage: UpdatedViewerAssistantUsagePayload!
 	updatedViewerSettings: UpdatedViewerSettingsPayload!
 	updatedWorkflow: UpdatedWorkflowPayload!
@@ -2895,14 +2965,22 @@ type TestTamperRulePayload {
 	raw: Blob
 }
 
-input TestUpstreamProxyInput {
+input TestUpstreamProxyHttpInput {
 	auth: UpstreamProxyAuthInput
-	host: String!
-	kind: UpstreamProxyKind!
-	port: Port!
+	connection: ConnectionInfoInput!
 }
 
-type TestUpstreamProxyPayload {
+type TestUpstreamProxyHttpPayload {
+	success: Boolean
+}
+
+input TestUpstreamProxySocksInput {
+	auth: UpstreamProxyAuthInput
+	connection: ConnectionInfoInput!
+	includeDns: Boolean!
+}
+
+type TestUpstreamProxySocksPayload {
 	success: Boolean
 }
 
@@ -2913,6 +2991,14 @@ union TogglePluginError = UnknownIdUserError | PluginUserError | OtherUserError
 type TogglePluginPayload {
 	error: TogglePluginError
 	plugin: Plugin
+}
+
+type ToggleUpstreamProxyHttpPayload {
+	proxy: UpstreamProxyHttp
+}
+
+type ToggleUpstreamProxySocksPayload {
+	proxy: UpstreamProxySocks
 }
 
 union ToggleWorkflowError = UnknownIdUserError | OtherUserError
@@ -3012,18 +3098,29 @@ type UpdateTamperRulePayload {
 	rule: TamperRule
 }
 
-input UpdateUpstreamProxyInput {
+input UpdateUpstreamProxyHttpInput {
 	allowlist: [String!]!
 	auth: UpstreamProxyAuthInput
+	connection: ConnectionInfoInput!
 	denylist: [String!]!
 	enabled: Boolean!
-	host: String!
-	kind: UpstreamProxyKind!
-	port: Port!
 }
 
-type UpdateUpstreamProxyPayload {
-	proxy: UpstreamProxy
+type UpdateUpstreamProxyHttpPayload {
+	proxy: UpstreamProxyHttp
+}
+
+input UpdateUpstreamProxySocksInput {
+	allowlist: [String!]!
+	auth: UpstreamProxyAuthInput
+	connection: ConnectionInfoInput!
+	denylist: [String!]!
+	enabled: Boolean!
+	includeDns: Boolean!
+}
+
+type UpdateUpstreamProxySocksPayload {
+	proxy: UpstreamProxySocks
 }
 
 input UpdateViewerSettingsInput {
@@ -3035,7 +3132,7 @@ type UpdateViewerSettingsPayload {
 	settings: UserSettings
 }
 
-union UpdateWorkflowError = UnknownIdUserError | WorkflowUserError | OtherUserError
+union UpdateWorkflowError = UnknownIdUserError | ReadOnlyUserError | WorkflowUserError | OtherUserError
 
 input UpdateWorkflowInput {
 	definition: JsonObject!
@@ -3164,6 +3261,14 @@ type UpdatedTamperRulePayload {
 	snapshot: Snapshot!
 }
 
+type UpdatedUpstreamProxyHttpPayload {
+	proxy: UpstreamProxyHttp!
+}
+
+type UpdatedUpstreamProxySocksPayload {
+	proxy: UpstreamProxySocks!
+}
+
 type UpdatedViewerAssistantUsagePayload {
 	usage: AssistantUsage!
 }
@@ -3195,18 +3300,6 @@ type UploadedHostedFilePayload {
 	hostedFile: HostedFile!
 }
 
-type UpstreamProxy {
-	allowlist: [String!]!
-	auth: UpstreamProxyAuth
-	denylist: [String!]!
-	enabled: Boolean!
-	host: String!
-	id: ID!
-	kind: UpstreamProxyKind!
-	port: Port!
-	rank: Rank!
-}
-
 union UpstreamProxyAuth = UpstreamProxyAuthBasic
 
 type UpstreamProxyAuthBasic {
@@ -3223,9 +3316,25 @@ input UpstreamProxyAuthInput @oneOf {
 	basic: UpstreamProxyAuthBasicInput
 }
 
-enum UpstreamProxyKind {
-	HTTP
-	HTTPS
+type UpstreamProxyHttp {
+	allowlist: [String!]!
+	auth: UpstreamProxyAuth
+	connection: ConnectionInfo!
+	denylist: [String!]!
+	enabled: Boolean!
+	id: ID!
+	rank: Rank!
+}
+
+type UpstreamProxySocks {
+	allowlist: [String!]!
+	auth: UpstreamProxyAuth
+	connection: ConnectionInfo!
+	denylist: [String!]!
+	enabled: Boolean!
+	id: ID!
+	includeDns: Boolean!
+	rank: Rank!
 }
 
 scalar Uri
@@ -3285,6 +3394,7 @@ type Workflow {
 	id: ID!
 	kind: WorkflowKind!
 	name: String!
+	readOnly: Boolean!
 	updatedAt: DateTime!
 }
 
@@ -3328,7 +3438,7 @@ type WorkflowTask implements Task {
 type WorkflowUserError implements UserError {
 	code: String!
 	message: String!
-	nodeId: ID
+	node: String
 	reason: WorkflowErrorReason!
 }
 
