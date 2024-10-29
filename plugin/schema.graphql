@@ -1023,7 +1023,7 @@ type DeleteProjectPayload {
 	error: DeleteProjectPayloadError
 }
 
-union DeleteProjectPayloadError = ProjectLockedUserError | OtherUserError
+union DeleteProjectPayloadError = ProjectUserError | UnknownIdUserError | OtherUserError
 
 type DeleteReplaySessionCollectionPayload {
 	deletedId: ID
@@ -1834,21 +1834,23 @@ type Project {
 	version: String!
 }
 
-enum ProjectLockedErrorReason {
+enum ProjectErrorReason {
 	DELETING
 	EXPORTING
+	INVALID_VERSION
 	NOT_READY
-}
-
-type ProjectLockedUserError implements UserError {
-	code: String!
-	reason: ProjectLockedErrorReason!
+	TOO_RECENT
 }
 
 enum ProjectStatus {
 	ERROR
 	READY
 	RESTORING
+}
+
+type ProjectUserError implements UserError {
+	code: String!
+	reason: ProjectErrorReason!
 }
 
 type QueryRoot {
@@ -2447,7 +2449,7 @@ type SelectProjectPayload {
 	project: Project
 }
 
-union SelectProjectPayloadError = ProjectLockedUserError | OtherUserError
+union SelectProjectPayloadError = ProjectUserError | UnknownIdUserError | OtherUserError
 
 union SendAssistantMessageError = PermissionDeniedUserError | TaskInProgressUserError | OtherUserError
 
