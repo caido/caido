@@ -9,6 +9,10 @@ If you believe you've discovered a security vulnerability in Caido, please repor
 - **Do not** open public GitHub issues, discussions, or pull requests for security vulnerabilities.
 - **Instead**, please report a vulnerability via the [Advisory Form](https://github.com/caido/caido/security/advisories)
 
+### Plugin Vulnerabilities
+
+If you discover a security vulnerability in a plugin for Caido, we recommend reporting it directly to the plugin’s author through their Github advisory page. Reporting the issue directly to the author ensures a faster response and resolution, as they are best equipped to address vulnerabilities specific to their plugin. 
+
 ### Information to Include
 To help us respond effectively, please provide as much of the following information as possible:
 
