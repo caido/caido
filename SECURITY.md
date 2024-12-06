@@ -32,6 +32,10 @@ Due to the flexible nature of our plugin system, plugins in Caido have unrestric
 **Important Note**: This is a known limitation of the plugin system that cannot be fully restricted at this time. 
 We encourage users to exercise caution and verify the source of any plugin before installation.
 
+### Exclusions
+
+Any reported vulnerability that requires an attacker to already have code execution on the host system will be considered not applicable (N/A). This includes issues that depend on compromised environments or systems outside of Caido’s control.
+
 ### Response Expectations
 
 As a small team, we appreciate your patience and understanding. 
