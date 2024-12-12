@@ -365,6 +365,7 @@ components:
       - repository
       - archive
       - signature
+      - downloads
       properties:
         archive:
           type: string
@@ -385,6 +386,10 @@ components:
         description:
           type: string
           nullable: true
+        downloads:
+          type: integer
+          format: int64
+          minimum: 0
         id:
           type: string
         license:
