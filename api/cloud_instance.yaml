@@ -10,6 +10,14 @@ paths:
       summary: Instance will call this endpoint at startup and every 24H
       description: Instance will call this endpoint at startup and every 24H
       operationId: ping_alive
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/InstanceAliveInput'
+              nullable: true
+        required: false
       responses:
         '200':
           description: Instance alive status recorded
@@ -345,6 +353,23 @@ components:
           type: string
         verification_uri_complete:
           type: string
+    InstanceAliveInput:
+      type: object
+      properties:
+        os:
+          allOf:
+          - type: object
+            properties:
+              kind:
+                type: string
+                nullable: true
+              name:
+                type: string
+                nullable: true
+              version:
+                type: string
+                nullable: true
+          nullable: true
     InstanceOwnerPayload:
       type: object
       required:
