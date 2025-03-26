@@ -500,12 +500,24 @@ components:
       - platform
       - kind
       - link
+      - os
+      - arch
       properties:
+        arch:
+          type: string
         display:
           type: string
+        format:
+          type: string
+          nullable: true
+        hash:
+          type: string
+          nullable: true
         kind:
           type: string
         link:
+          type: string
+        os:
           type: string
         platform:
           type: string
