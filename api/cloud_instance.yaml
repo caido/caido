@@ -207,14 +207,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Release'
-  /store/community/packages:
+  /store/packages:
     get:
       tags:
       - instance
-      operationId: packages
+      operationId: get_packages
+      parameters:
+      - name: kind
+        in: query
+        required: false
+        schema:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/PluginPackageKind'
       responses:
         '200':
-          description: List all the community packages
+          description: List all the packages
           content:
             application/json:
               schema:
@@ -378,6 +386,7 @@ components:
       - repository
       - archive
       - signature
+      - kind
       - downloads
       properties:
         archive:
@@ -409,6 +418,8 @@ components:
           minimum: 0
         id:
           type: string
+        kind:
+          $ref: '#/components/schemas/PluginPackageKind'
         license:
           type: string
         name:
@@ -427,6 +438,11 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/PackagePayload'
+    PluginPackageKind:
+      type: string
+      enum:
+      - community
+      - official
     RegisterClientInput:
       type: object
       required:
