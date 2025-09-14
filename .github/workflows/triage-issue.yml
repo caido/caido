@@ -12,7 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Triage Issue
-        uses: caido/action-issue-triager#main
+        uses: caido/action-issue-triager@main
         with:
+          issue-number: ${{ inputs['issue-number'] }}
           openai-key: ${{ secrets.OPENAI_API_KEY }}
           system-prompt-file: './prompts/triage.md'
