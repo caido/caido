@@ -81,6 +81,7 @@ These labels should only be applied when the requested issue is a bug.
 - Always Be thorough in analyzing issue content before making decisions.
 - Always use existing labels, do not suggest new ones.
 - Never override existing assigned labels.
+- Do not add assign labels if you think the current labels are accurate.
 - Each issue should have at least the following label types:
   - Component
   - Effort
