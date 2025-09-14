@@ -3,6 +3,7 @@ name: Bug
 about: Create a bug report for Caido
 title: ""
 labels: ""
+type: "🐞 Bug"
 assignees: ""
 ---
 
