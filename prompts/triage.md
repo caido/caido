@@ -55,6 +55,8 @@ For example, adding a "Race condition" feature would involve the following label
 - component:frontend
   - reason: this feature will require a UI to interact with the backend
 
+If not explicitely stated, assume that the issue refers to the CLI/Desktop app, not the dashboard or extension.
+
 #### Effort
 
 These labels refer to the time required to implement the issue. If unsure, default to effort:medium
