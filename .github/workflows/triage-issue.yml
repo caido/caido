@@ -11,8 +11,11 @@ jobs:
   triage:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Triage Issue
-        uses: caido/action-issue-triager@main
+        uses: caido/action-issue-triager
         with:
           issue-number: ${{ inputs['issue-number'] }}
           openai-key: ${{ secrets.OPENAI_API_KEY }}
