@@ -6,12 +6,16 @@ on:
         description: 'Issue number to triage'
         required: true
         type: string
- 
+
+  issues:
+    types: [opened]
+
 jobs:
   triage:
     runs-on: ubuntu-latest
     permissions:
       issues: write
+    timeout-minutes: 2
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -19,7 +23,7 @@ jobs:
       - name: Triage Issue
         uses: caido/action-issue-triager@main
         with:
-          issue-number: ${{ inputs['issue-number'] }}
+          issue-number: ${{ inputs['issue-number'] || github.event.issue.number }}
           openai-key: ${{ secrets.OPENAI_API_KEY }}
           system-prompt-file: './prompts/triage.md'
         env:
