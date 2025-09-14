@@ -22,3 +22,5 @@ jobs:
           issue-number: ${{ inputs['issue-number'] }}
           openai-key: ${{ secrets.OPENAI_API_KEY }}
           system-prompt-file: './prompts/triage.md'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
