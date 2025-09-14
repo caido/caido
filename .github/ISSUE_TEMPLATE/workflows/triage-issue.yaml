@@ -1,0 +1,18 @@
+name: Triage Issue
+on:
+  workflow_dispatch:
+    inputs:
+      issue-number:
+        description: 'Issue number to triage'
+        required: true
+        type: string
+ 
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Triage Issue
+        uses: caido/action-issue-triager#main
+        with:
+          openai-key: ${{ secrets.OPENAI_API_KEY }}
+          system-prompt-file: './prompts/triage.md'
