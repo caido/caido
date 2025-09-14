@@ -4,6 +4,7 @@ about: Propose a feature for Caido
 title: ""
 labels: ""
 assignees: ""
+type: "🚀 Feature"
 ---
 
 <!--- Please keep this note for the community --->
