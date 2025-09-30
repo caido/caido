@@ -112,6 +112,19 @@ paths:
       responses:
         '200':
           description: User session revoked
+  /instance/workspace:
+    get:
+      tags:
+      - instance
+      summary: Instance will retrieve its workspace for access control
+      operationId: get_instance_workspace
+      responses:
+        '200':
+          description: Instance workspace
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstanceWorkspacePayload'
   /oauth2/device/authorize:
     post:
       tags:
@@ -375,6 +388,20 @@ components:
         id:
           type: string
         kind:
+          type: string
+    InstanceWorkspacePayload:
+      type: object
+      required:
+      - id
+      - name
+      - generation
+      properties:
+        generation:
+          type: integer
+          format: int64
+        id:
+          type: string
+        name:
           type: string
     PackagePayload:
       type: object
@@ -699,6 +726,8 @@ components:
       - id
       - client_id
       - user_id
+      - workspace_id
+      - generation
       - scopes
       - expires_at
       - created_at
@@ -711,6 +740,9 @@ components:
         expires_at:
           type: string
           format: date-time
+        generation:
+          type: integer
+          format: int64
         id:
           type: string
         scopes:
@@ -718,4 +750,6 @@ components:
           items:
             type: string
         user_id:
+          type: string
+        workspace_id:
           type: string
