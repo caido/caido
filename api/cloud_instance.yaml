@@ -612,6 +612,27 @@ components:
             type: string
             enum:
             - client_credentials
+      - type: object
+        title: TokenInputAuthorizationCode
+        required:
+        - code
+        - client_id
+        - client_secret
+        - redirect_uri
+        - grant_type
+        properties:
+          client_id:
+            type: string
+          client_secret:
+            type: string
+          code:
+            type: string
+          grant_type:
+            type: string
+            enum:
+            - authorization_code
+          redirect_uri:
+            type: string
     TokenPayload:
       type: object
       required:
