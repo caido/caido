@@ -480,6 +480,10 @@ components:
           type: array
           items:
             type: string
+        instance_registration_key:
+          type:
+          - string
+          - 'null'
         scope:
           type: string
     RegisterClientPayload:
