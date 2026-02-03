@@ -129,7 +129,8 @@ paths:
     post:
       tags:
       - instance
-      summary: Instance starts the OAuth2 device authorization flow
+      - api
+      summary: Client starts the OAuth2 device authorization flow
       operationId: device_authorize
       requestBody:
         content:
@@ -148,7 +149,8 @@ paths:
     post:
       tags:
       - instance
-      summary: Instance registers itself as an OAuth2 client during the first startup
+      - api
+      summary: Clients registers itself
       operationId: register_client
       requestBody:
         content:
@@ -167,7 +169,8 @@ paths:
     put:
       tags:
       - instance
-      summary: Instance updates its OAuth2 client when needed (e.g. to request new scopes)
+      - api
+      summary: Client updates its OAuth2 client when needed (e.g. to request new scopes)
       operationId: update_client
       parameters:
       - name: id
@@ -192,7 +195,8 @@ paths:
     post:
       tags:
       - instance
-      summary: Instance requests OAuth2 tokens for itself or a user
+      - api
+      summary: Client requests OAuth2 tokens
       operationId: token
       requestBody:
         content:
@@ -778,3 +782,13 @@ components:
           type: string
         workspace_id:
           type: string
+  securitySchemes:
+    access_token:
+      type: http
+      scheme: bearer
+      description: OAuth 2.0 Access Token
+    pat:
+      type: http
+      scheme: bearer
+      bearerFormat: caido_<token>
+      description: Personal Access Token (PAT)
