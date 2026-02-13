@@ -3,6 +3,3 @@ contact_links:
   - name: Questions
     url: https://github.com/caido/caido/discussions
     about: Ask a question / get help with a problem
-  - name: Plugin
-    url: https://github.com/caido-community/ideas/issues/new?assignees=&labels=&projects=&template=idea.md&title=
-    about: Share an idea for a plugin
