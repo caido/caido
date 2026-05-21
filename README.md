@@ -28,7 +28,7 @@ Here you can get involved with the development of our software.
 
 You can learn about upcoming Caido features on our [Roadmap](https://links.caido.io/roadmap). We try to release a new version at least once a month, which you can find in our [releases section](https://github.com/caido/caido/releases) or in your [Caido Dashboard](https://dashboard.caido.io).
 
-<img width="1552" alt="intercept" src="https://user-images.githubusercontent.com/6225588/212757627-e1bdb779-7288-4f3f-8490-c932fb77f012.png">
+<img width="1552" alt="intercept" src="https://github.com/user-attachments/assets/3b03bd19-7f73-421c-91b5-4adc721ac71b">
 
 ## 💚 Community
 
