@@ -1,6 +1,6 @@
 <h1 align="middle">Brand Guidelines</h1>
 <p align="center">
-  This is a friendly legal reminder that these graphics are the property of Caido Labs Inc. and are protected under intellectual property laws
+  This is a friendly legal reminder that Caido® and these graphics are the registered trademarks and property of Caido Labs Inc., protected under intellectual property laws. By using these assets, you agree to follow these guidelines.
 </p>
 
 ## Definitions
