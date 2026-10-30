@@ -4,54 +4,64 @@ Thank you for helping make Caido safer for everyone.
 
 ## Reporting Security Issues
 
-If you believe you've discovered a security vulnerability in Caido, please report it responsibly. Here’s how to submit your report:
+If you believe you've discovered a security vulnerability in Caido, please report it responsibly:
 
 - **Do not** open public GitHub issues, discussions, or pull requests for security vulnerabilities.
-- **Instead**, please report a vulnerability via the [Advisory Form](https://github.com/caido/caido/security/advisories)
+- **Instead**, submit your report directly to our security team via email:
+  
+  `security` **[at]** `caido` **[dot]** `io`  
+  *(Replace `[at]` with `@` and `[dot]` with `.`)*
 
 ### Plugin Vulnerabilities
 
-If you discover a security vulnerability in a plugin for Caido, we recommend reporting it directly to the plugin’s author through their Github advisory page. Reporting the issue directly to the author ensures a faster response and resolution, as they are best equipped to address vulnerabilities specific to their plugin. 
+If you discover a security vulnerability in a third-party plugin for Caido, please report it directly to the plugin author (e.g., via their GitHub Security Advisory page or repository contact). The plugin author is best equipped to triage and remediate vulnerabilities specific to their code.
 
-### Information to Include
-To help us respond effectively, please provide as much of the following information as possible:
+---
 
-- **Type of vulnerability** (e.g., buffer overflow, SQL injection, cross-site scripting, etc.)
-- **Configuration requirements** needed to reproduce the issue
-- **Steps to reproduce** the vulnerability (please be as detailed as possible)
-- **Proof-of-concept or exploit code** (if available)
-- **Potential impact** (how the vulnerability could be exploited)
+## Information to Include
 
-This information will help us investigate and resolve issues as quickly as possible.
+To help us investigate and triage effectively, please include as much detail as possible in your report:
 
-### Known Issues
+- **Vulnerability type / classification** (e.g., memory corruption, RCE, CSRF, privilege escalation).
+- **Target environment and configuration** (operating system, Caido version, specific settings).
+- **Detailed step-by-step reproduction guide**.
+- **Proof-of-concept (PoC) or exploit scripts** (where applicable).
+- **Security impact and realistic threat model** (how this could be leveraged against a user).
 
-#### Plugin Capabilities
+---
 
-Due to the flexible nature of our plugin system, plugins in Caido have unrestricted access within the environment. This includes the ability to:
-- Access files on your computer.
-- Connect to the internet.
-- Install or execute additional programs.
+## Scope & Exclusions
 
-**Important Note**: This is a known limitation of the plugin system that cannot be fully restricted at this time. 
-We encourage users to exercise caution and verify the source of any plugin before installation.
+### Known Limitations: Plugin Environment
+Due to the extensible design of Caido's plugin ecosystem, plugins execute with full access inside the user's local runtime. They can inherently:
+- Read and write files accessible to the host user.
+- Establish inbound/outbound network connections.
+- Spawn child processes or execute binaries.
 
-### Exclusions
+Reports that merely demonstrate that an installed plugin can perform actions granted by this execution model are considered **intended behavior** and will be marked as out of scope.
 
-Any reported vulnerability that requires an attacker to already have code execution on the host system will be considered not applicable (N/A). This includes issues that depend on compromised environments or systems outside of Caido’s control.
+### General Exclusions
+The following scenarios are considered **Not Applicable (N/A)**:
+- Attacks requiring existing arbitrary code execution or root/admin privileges on the host system.
+- Social engineering attacks directed against Caido maintainers or staff.
+- Denial-of-service (DoS/DDoS) attacks against Caido web infrastructure or services.
+- Vulnerabilities that depend on modified/tampered binaries or compromised runtime environments outside Caido's control.
 
-### Response Expectations
+---
 
-As a small team, we appreciate your patience and understanding. 
+## Response Expectations & Disclosure
 
-While we don’t have a guaranteed response timeline, we aim to review all security reports as quickly as possible. 
+- **Timeline:** We are a small team. While we do not have an SLA for triage, we review incoming reports promptly and prioritize high- and critical-severity issues.
+- **Coordinated Disclosure:** We ask that you allow reasonable time for our team to remediate the vulnerability before publishing details or PoCs, and that you maintain confidentiality during the triage and patch cycle.
 
-We prioritize severe vulnerabilities and will keep you updated on our progress as we investigate and work on any necessary fixes.
+---
 
-### Disclosure Policy
+## Frequently Asked Questions (FAQ)
 
-We kindly ask that you:
-- Allow us time to resolve the issue before making any information public.
-- Maintain confidentiality regarding the vulnerability while we work on a fix.
+#### Do you offer a bug bounty or monetary reward?
+No. Caido does not currently operate a paid bug bounty program. We deeply appreciate the research community's voluntary contributions to keeping Caido secure, and we are happy to publicly credit researchers in our release notes and advisories (with their permission).
 
-Thank you for your contribution to Caido’s security!
+#### Can Caido issue a CVE for my reported vulnerability?
+CVE assignments depend on the affected component:
+- **Desktop Application:** **Yes.** For vulnerabilities in distributed client software (the desktop binary/engine), we can coordinate and assign a CVE upon verification and patch release.
+- **Cloud Platform & SaaS Services:** **No.** Fixes applied directly to our hosted cloud infrastructure and backend web services do not receive CVE identifiers, as users do not need to update or manage installed software to remediate the issue.
